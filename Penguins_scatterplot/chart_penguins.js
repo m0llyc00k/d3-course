@@ -6,7 +6,7 @@ async function drawScatter() {
 
     // 1. Access Data
     let dataset = await d3.json('./penguin_data.json');
-console.log(dataset[0])
+    console.log(dataset[0])
     const xAccessor = d => d.flipper_length_mm
     const yAccessor = d => d.bill_length_mm
     const colorAccessor = d => d.species_island
@@ -67,59 +67,64 @@ console.log(dataset[0])
     //     .domain(d3.extent(dataset, colorAccessor))
     //     .range(["skyblue", "darkslategrey"])
     //     .nice()
-    
+
     const colorScale = d3.scaleOrdinal()
         .domain(d3.extent(dataset, colorAccessor))
         .range(["skyblue", "darkslategrey", "yellow", "purple", "red", "green"])
-        
+
 
     // 5. Draw Data
- 
-        const dots = bounds.selectAll("circle")
-            .data(dataset)
-            
-        dots.join("circle")
-            .attr("cx", d => xScale(xAccessor(d)))
-            .attr("cy", d => yScale(yAccessor(d)))
-            .attr("r", 4)
-            // .attr("fill", "cornflowerblue")
-            .attr("fill", d => colorScale(colorAccessor(d)))
-    
-    
+var z = d3.scaleLinear()
+    .domain([2000, 7000])
+    .range([ 1, 6]);
+
+
+    const dots = bounds.selectAll("circle")
+        .data(dataset)
+
+    dots.join("circle")
+        .attr("cx", d => xScale(xAccessor(d)))
+        .attr("cy", d => yScale(yAccessor(d)))
+        // .attr("r", 4)
+        // .attr("fill", "cornflowerblue")
+        .attr("fill", d => colorScale(colorAccessor(d)))
+        .attr("r", function (d) { return z(d.body_mass_g); } )
+
+
     // drawDots(dataset.slice(0, 100), "gray")
     // setTimeout(() => {
     //     drawDots(dataset, "cornflowerblue")
     //     }, 1000)
-    
+
     //Draw our Peripherals
-    
+
     const xAxisGenerator = d3.axisBottom()
         .scale(xScale)
-        
+
     const xAxis = bounds.append("g")
         .call(xAxisGenerator)
         .style("transform", `translateY(${
             dims.boundedHeight
         
         }px)`)
-        
+
     const xAxisLabel = xAxis.append("text")
         .attr("x", dims.boundedWidth / 2)
         .attr("y", dims.margin.bottom - 10)
         .html("Bill Length (mm)")
         .style("font-size", "1.4em")
         .attr("fill", "black")
-        
-        
+
+
     const yAxisGenerator = d3.axisLeft()
         .scale(yScale)
         .ticks(6)
-        
+
     const yAxis = bounds.append("g")
         .call(yAxisGenerator)
-        
-        
-        
+
+
+
     const yAxisLabel = yAxis.append("text")
         .attr("x", -dims.boundedHeight / 2)
         .attr("y", -dims.margin.left + 10)
@@ -128,10 +133,10 @@ console.log(dataset[0])
         .html("Bill Depth (mm)")
         .style("font-size", "1.4em")
         .attr("fill", "black")
-        
-    
-        
-        
+
+
+
+
 }
 
 drawScatter()
