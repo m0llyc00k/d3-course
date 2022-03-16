@@ -1,5 +1,7 @@
 .wrapper {
     position: relative;
+    padding-top: 100px;
+    margin-top: 100px;
 }
 
 .bin rect {

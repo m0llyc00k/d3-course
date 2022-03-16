@@ -1,4 +1,6 @@
-import * as d3 from "d3";
+// import * as d3 from "d3";
+
+/* global d3 */
 
 async function drawLineChart() {
 
@@ -21,22 +23,22 @@ async function drawLineChart() {
       left: 60,
     },
   }
-  dimensions.boundedWidth = dimensions.width
-    - dimensions.margin.left
-    - dimensions.margin.right
-  dimensions.boundedHeight = dimensions.height
-    - dimensions.margin.top
-    - dimensions.margin.bottom
+  dimensions.boundedWidth = dimensions.width -
+    dimensions.margin.left -
+    dimensions.margin.right
+  dimensions.boundedHeight = dimensions.height -
+    dimensions.margin.top -
+    dimensions.margin.bottom
 
   // 3. Draw canvas
 
   const wrapper = d3.select("#wrapper")
     .append("svg")
-      .attr("width", dimensions.width)
-      .attr("height", dimensions.height)
+    .attr("width", dimensions.width)
+    .attr("height", dimensions.height)
 
   const bounds = wrapper.append("g")
-      .style("transform", `translate(${
+    .style("transform", `translate(${
         dimensions.margin.left
       }px, ${
         dimensions.margin.top
@@ -50,12 +52,12 @@ async function drawLineChart() {
 
   const freezingTemperaturePlacement = yScale(32)
   const freezingTemperatures = bounds.append("rect")
-      .attr("x", 0)
-      .attr("width", dimensions.boundedWidth)
-      .attr("y", freezingTemperaturePlacement)
-      .attr("height", dimensions.boundedHeight
-        - freezingTemperaturePlacement)
-      .attr("fill", "#e0f3f3")
+    .attr("x", 0)
+    .attr("width", dimensions.boundedWidth)
+    .attr("y", freezingTemperaturePlacement)
+    .attr("height", dimensions.boundedHeight -
+      freezingTemperaturePlacement)
+    .attr("fill", "#e0f3f3")
 
   const xScale = d3.scaleTime()
     .domain(d3.extent(dataset, xAccessor))
@@ -68,10 +70,10 @@ async function drawLineChart() {
     .y(d => yScale(yAccessor(d)))
 
   const line = bounds.append("path")
-      .attr("d", lineGenerator(dataset))
-      .attr("fill", "none")
-      .attr("stroke", "#af9358")
-      .attr("stroke-width", 2)
+    .attr("d", lineGenerator(dataset))
+    .attr("fill", "none")
+    .attr("stroke", "#af9358")
+    .attr("stroke-width", 2)
 
   // 6. Draw peripherals
 
@@ -86,11 +88,69 @@ async function drawLineChart() {
 
   const xAxis = bounds.append("g")
     .call(xAxisGenerator)
-      .style("transform", `translateY(${
+    .style("transform", `translateY(${
         dimensions.boundedHeight
       }px)`)
 
   // 7. Set up interactions
+
+  const listenerRect = bounds.append("rect")
+    .attr("class", "listener-rect")
+    .attr("width", dimensions.boundedWidth)
+    .attr("height", dimensions.boundedHeight)
+    .on("mousemove", onMouseMove)
+    .on("mouseleave", onMouseLeave)
+
+
+  const tooltip = d3.select('#tooltip')
+
+  const tooltipCircle = bounds.append("circle")
+    .attr("class", "tooltip-circle")
+    .attr("r", 4)
+
+  function onMouseMove(event) {
+    const mousePosition = d3.pointer(event)
+    const hoveredDate = xScale.invert(mousePosition[0])
+
+    const getDistanceFromHoveredDate = d =>
+      Math.abs(xAccessor(d) - hoveredDate)
+
+    const closestIndex = d3.leastIndex(
+      dataset,
+      (a, b) => getDistanceFromHoveredDate(a) - getDistanceFromHoveredDate(b)
+    )
+
+    const closestDataPoint = dataset[closestIndex]
+    const formatDate = d3.timeFormat("%B %A %-d, %Y")
+
+    tooltip.select("#date")
+      .text(formatDate(xAccessor(closestDataPoint)))
+
+    const formatTemp = d => `${d3.format(".1f")(d)} °F`
+
+    tooltip.select("#temperature")
+      .text(formatTemp(yAccessor(closestDataPoint)))
+
+    const x = xScale(xAccessor(closestDataPoint)) + dimensions.margin.left
+    const y = yScale(yAccessor(closestDataPoint)) + dimensions.margin.top
+
+    tooltip.style("transform", `translate(calc(-50% + ${x}px), calc(-100% + ${y}px)`)
+
+    tooltipCircle.attr("cx", xScale(xAccessor(closestDataPoint))).attr("cy", yScale(yAccessor(closestDataPoint)))
+    
+    tooltipCircle.style("opacity", 1)
+
+    tooltip.style("opacity", 1)
+  }
+
+  function onMouseLeave() {
+    tooltip.style("opacity", 0)
+    tooltipCircle.style("opacity", 0)
+
+  }
+
+
+
 
 }
 drawLineChart()

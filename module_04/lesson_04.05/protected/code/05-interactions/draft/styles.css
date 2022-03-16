@@ -58,9 +58,22 @@ body {
     z-index: 10;
 }
 
+.tooltip-circle {
+    stroke: #af9358;
+    fill: white;
+    stroke-width: 2;
+    opacity: 0;
+    pointer-events: none;
+}
+
 .tooltip-date {
     margin-bottom: 0.2em;
     font-weight: 600;
     font-size: 1.1em;
     line-height: 1.4em;
+}
+
+.listener-rect {
+    fill: transparent; 
+    /*//if we want to trigger mouse events, dont use 'none'*/
 }

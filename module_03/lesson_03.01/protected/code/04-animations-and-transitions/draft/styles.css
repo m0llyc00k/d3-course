@@ -2,9 +2,12 @@
     background: cornflowerblue;
     height: 100px;
     width: 100px;
+    transition: transform 2s ease-out, 
+                background 1s ease-out;
+    /*transition-property: background;*/
 }
 
 .box:hover {
     background: yellowgreen;
-    transform: translateX(30px);
+    transform: translateX(300px);
 }

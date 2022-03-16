@@ -1,4 +1,4 @@
-import * as d3 from "d3";
+/*global d3 */
 
 async function drawLineChart() {
 
@@ -10,7 +10,7 @@ async function drawLineChart() {
   const yAccessor = d => d.temperatureMax
   const dateParser = d3.timeParse("%Y-%m-%d")
   const xAccessor = d => dateParser(d.date)
-  dataset = dataset.sort((a,b) => xAccessor(a) - xAccessor(b)).slice(0, 100)
+  dataset = dataset.sort((a, b) => xAccessor(a) - xAccessor(b)).slice(0, 100)
 
   let dimensions = {
     width: window.innerWidth * 0.9,
@@ -29,22 +29,34 @@ async function drawLineChart() {
 
   const wrapper = d3.select("#wrapper")
     .append("svg")
-      .attr("width", dimensions.width)
-      .attr("height", dimensions.height)
+    .attr("width", dimensions.width)
+    .attr("height", dimensions.height)
 
   const bounds = wrapper.append("g")
-      .style("transform", `translate(${dimensions.margin.left}px, ${dimensions.margin.top}px)`)
+    .style("transform", `translate(${dimensions.margin.left}px, ${dimensions.margin.top}px)`)
+
+  const clipPath = bounds.append("defs").append("clipPath")
+      .attr("id", "bounds-clip-path")
+    .append("rect")
+      .attr("width", dimensions.boundedWidth)
+      .attr("height", dimensions.boundedHeight)
 
   // init static elements
   bounds.append("rect")
-      .attr("class", "freezing")
-  bounds.append("path")
-      .attr("class", "line")
+    .attr("class", "freezing")
+    
+  const clip = bounds.append("g")
+    .attr("clip-path", "url(#bounds-clip-path)")
+    
+  clip.append("path")
+    .attr("class", "line")
   bounds.append("g")
-      .attr("class", "x-axis")
-      .style("transform", `translateY(${dimensions.boundedHeight}px)`)
+    .attr("class", "x-axis")
+    .style("transform", `translateY(${dimensions.boundedHeight}px)`)
   bounds.append("g")
-      .attr("class", "y-axis")
+    .attr("class", "y-axis")
+    
+    
 
   const drawLine = (dataset) => {
 
@@ -56,10 +68,10 @@ async function drawLineChart() {
 
     const freezingTemperaturePlacement = yScale(32)
     const freezingTemperatures = bounds.select(".freezing")
-        .attr("x", 0)
-        .attr("width", dimensions.boundedWidth)
-        .attr("y", freezingTemperaturePlacement)
-        .attr("height", dimensions.boundedHeight - freezingTemperaturePlacement)
+      .attr("x", 0)
+      .attr("width", dimensions.boundedWidth)
+      .attr("y", freezingTemperaturePlacement)
+      .attr("height", dimensions.boundedHeight - freezingTemperaturePlacement)
 
     const xScale = d3.scaleTime()
       .domain(d3.extent(dataset, xAccessor))
@@ -70,9 +82,19 @@ async function drawLineChart() {
     const lineGenerator = d3.line()
       .x(d => xScale(xAccessor(d)))
       .y(d => yScale(yAccessor(d)))
+      
+    const lastTwoPoints = dataset.slice(-2)
+    const pixelsBetweenLastPoints = xScale(xAccessor(lastTwoPoints[1])) - xScale(xAccessor(lastTwoPoints[0]))
+    
+    console.log(pixelsBetweenLastPoints)
 
     const line = bounds.select(".line")
-        .attr("d", lineGenerator(dataset))
+      .attr("d", lineGenerator(dataset))
+      .style("transform", `translateX(${
+      pixelsBetweenLastPoints
+      }px)`)
+      .transition()
+      .style("transform", "none")
 
     // 6. Draw peripherals
 
@@ -92,6 +114,7 @@ async function drawLineChart() {
 
   // update the line every 1.5 seconds
   setInterval(addNewDay, 1500)
+
   function addNewDay() {
     dataset = [
       ...dataset.slice(1),
