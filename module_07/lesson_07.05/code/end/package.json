@@ -7,8 +7,9 @@
     "start": "node server.js"
   },
   "dependencies": {
-    "d3":"6.3.1",
-    "jsdom": "15.0.0"
+    "d3": "6.3.1",
+    "jsdom": "15.0.0",
+    "webpack-dev-middleware": "^5.3.1"
   },
   "devDependencies": {
     "@babel/core": "^7.3.3",
@@ -26,7 +27,7 @@
     "react-hot-loader": "^4.7.1",
     "resize-observer-polyfill": "^1.5.1",
     "style-loader": "^0.23.1",
-    "webpack": "^4.29.5",
+    "webpack": "^4.44.2",
     "webpack-cli": "^3.2.3",
     "webpack-dev-server": "^3.2.0",
     "webpack-hot-middleware": "^2.24.3"

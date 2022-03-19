@@ -77,3 +77,7 @@ body {
     fill: transparent; 
     /*//if we want to trigger mouse events, dont use 'none'*/
 }
+
+.grid-line {
+    stroke: gray;
+}
