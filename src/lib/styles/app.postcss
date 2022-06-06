@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* purgecss start ignore */
+@layer base {
+	.prose h2 {
+		@apply my-1;
+	}
+	.prose p,
+	.prose mark {
+		@apply text-sm font-normal text-primary;
+	}
+
+	img.g-aiImg {
+		@apply my-0;
+	}
+
+	main > article > section {
+		@apply my-12 last-of-type:mb-0;
+	}
+
+	/* general section padding and grid widths */
+	.content-well {
+		@apply w-full max-w-7xl px-4 lg:px-8 mx-auto;
+	}
+
+	/* tooltip */
+	[data-tooltip] {
+		@apply relative inline-block cursor-pointer;
+	}
+	[data-tooltip]:active:after,
+	[data-tooltip]:active:before,
+	[data-tooltip]:focus:after,
+	[data-tooltip]:focus:before,
+	[data-tooltip]:hover:after,
+	[data-tooltip]:hover:before {
+		@apply block -translate-y-1 shadow-md;
+	}
+	[data-tooltip]:after {
+		@apply bottom-full bg-black-light text-white text-xs rounded py-1 px-2 whitespace-nowrap leading-tight;
+		content: attr(data-tooltip);
+	}
+	[data-tooltip]:before {
+		@apply absolute top-[-4px] left-0 w-[8px] h-[8px] border-r border-b border-black-light bg-black-light rotate-45;
+		content: '';
+	}
+	[data-tooltip]:after,
+	[data-tooltip]:before {
+		@apply z-40 hidden absolute left-1/2 select-none  -translate-x-1/2 -translate-y-2 pointer-events-none transition-all duration-300 ease-out;
+	}
+}
+
+body::-webkit-scrollbar {
+	@apply w-2;
+}
+body::-webkit-scrollbar-thumb {
+	@apply bg-secondary rounded-full;
+}
+body::-webkit-scrollbar-track {
+	@apply bg-transparent;
+}

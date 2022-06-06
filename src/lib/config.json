@@ -1,0 +1,35 @@
+{
+	"google": {
+		"sheet": [
+			{
+				"id": "",
+				"gid": "0",
+				"filepath": "src/lib/data/data.csv"
+			}
+		],
+		"doc": [
+			{
+				"id": "",
+				"filepath": "src/lib/data/copy.json"
+			}
+		],
+		"fonts": {
+			"active": true,
+			"weights": [
+				{
+					"name": "Inter",
+					"weights": ["400", "500", "700"],
+					"italics": []
+				}
+			]
+		}
+	},
+	"fontAwesome": {
+		"active": true,
+		"kitId": "030560e164"
+	},
+	"typekit": {
+		"active": false,
+		"kitId": "id"
+	}
+}
