@@ -98,6 +98,7 @@
 	<Modal {isModalOpen}>
 		<svelte:fragment slot="modal-content">
 			<h1 class="font-bold">{modalData.NAMELSAD}</h1>
+			<hr class="py-2.5" />
 			<h2>MAT Providers [2022]: <span class="font-bold">{modalData.MAT}</span></h2>
 			<h2>Pills per 100 People [2012]: <span class="font-bold">{modalData.PILLS}</span></h2>
 			<h2>
