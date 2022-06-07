@@ -12,8 +12,6 @@
 	// export let list = [];
 	//   export let legendLabels = [];
 	// let visibleState = '';
-	let tooltipContainer;
-	let tooltip;
 
 	export const width = 1200,
 		height = 550;
@@ -45,6 +43,13 @@
 	];
 
 	var legendText = legendLabels.map((d) => d);
+	let tooltipContainer;
+	let tooltip;
+	let tooltipData;
+	const mouseover = (county) => {
+		tooltip = true;
+		tooltipData = county;
+	};
 </script>
 
 //draw map
@@ -53,15 +58,8 @@
 		<path
 			class="focus:fill-cyan-200 stroke-black cursor-pointer stroke-1"
 			d={path(county)}
-			bind:this={tooltipContainer}
-			on:mouseover={() =>
-				(tooltip = {
-					data: county.properties.NAMELSAD
-				})}
-			on:focus={() =>
-				(tooltip = {
-					data: county.properties.NAMELSAD
-				})}
+			on:mouseover={mouseover(county.properties)}
+			on:focus={mouseover(county.properties)}
 			on:mouseout={() => (tooltip = false)}
 			on:blur={() => (tooltip = false)}
 			on:click={() =>
@@ -79,6 +77,9 @@
 		/>
 	{/each}
 </g>
+<Tooltip {tooltip}>
+	<p class="my-0">{tooltip}</p>
+</Tooltip>
 
 <!-- on:mouseenter={() => (visibleState = county.properties.GEOID)}
 on:mouseleave={() => (visibleState = '')} -->

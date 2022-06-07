@@ -69,9 +69,6 @@
 	<section class="text-center mx-auto">
 		<svg {width} {height} class="mx-auto">
 			<Map {counties} callback={onToggleState} {list} />
-			<Tooltip bind:tooltip parentContainer={tooltipContainer}>
-				<p class="my-0">{tooltip.data}</p>
-			</Tooltip>
 		</svg>
 		<List {list} />
 	</section>
