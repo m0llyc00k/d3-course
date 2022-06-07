@@ -10,14 +10,12 @@
 	import clickOutside from '$lib/actions/clickOutside';
 	import { createFocusTrap } from 'focus-trap';
 	import { disableBodyScroll, clearAllBodyScrollLocks } from 'body-scroll-lock';
-
 	let trap;
 	let modalEl;
-	let isModalOpen = false;
+	export let isModalOpen = false;
 
 	// close menu before navigating
 	beforeNavigate(() => (isModalOpen = false));
-
 	$: if (isModalOpen && modalEl) {
 		trap = createFocusTrap(modalEl);
 		trap.activate();
@@ -27,13 +25,6 @@
 		clearAllBodyScrollLocks();
 	}
 </script>
-
-<button
-	class="my-2 bg-secondary-light border border-secondary rounded-sm text-primary text-sm leading-none p-1.5 hover:border-background0"
-	on:click={() => (isModalOpen = true)}
->
-	<slot name="prompt">Show Modal</slot>
-</button>
 
 {#if isModalOpen}
 	<div
@@ -57,10 +48,8 @@
 						<i class="fas fa-times" />
 					</button>
 				</div>
-				<section class="px-8 my-2">
-					<slot name="modal-content">
-						<h1>Hello world!</h1>
-					</slot>
+				<section class="px-8 pb-6 my-2">
+					<slot name="modal-content" />
 				</section>
 			</article>
 		</div>

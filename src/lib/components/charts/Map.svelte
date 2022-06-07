@@ -7,11 +7,8 @@
 
 	import * as d3 from 'd3';
 	import Tooltip from '$lib/components/interactivity/Tooltip.svelte';
+	import Modal from '$lib/components/interactivity/Modal.svelte';
 	export let counties = [];
-	export let callback;
-	// export let list = [];
-	//   export let legendLabels = [];
-	// let visibleState = '';
 
 	export const width = 1200,
 		height = 550;
@@ -22,14 +19,13 @@
 		.scale([1150]);
 
 	$: path = d3.geoPath(projection);
-	//I had issues accessing 'colorScale' from onMount in App.svelte, so I created it manually here.
+
 	$: thisColorScale = d3
 		.scaleOrdinal()
 		.domain([1, 5])
 		.range(['#3b528b', '#fde725', '#440154', '#21908d', '#5dc963']);
 
 	//create legend
-	//const legendColors = ["blue", "yellow", "purple", "teal", "green"];
 	const legendColors = d3
 		.scaleOrdinal()
 		.range(['#3b528b', '#fde725', '#440154', '#21908d', '#5dc963']);
@@ -43,75 +39,70 @@
 	];
 
 	var legendText = legendLabels.map((d) => d);
-	let tooltipContainer;
 	let tooltip;
 	let tooltipData;
-	const mouseover = (county) => {
+	let modalData;
+	let isModalOpen;
+
+	const mouseover = (thisCounty) => {
 		tooltip = true;
-		tooltipData = county;
+		tooltipData = thisCounty;
+		// console.log(tooltipData);
+	};
+
+	const clicked = (thisCounty) => {
+		isModalOpen = true;
+		modalData = thisCounty;
+		// console.log(tooltipData);
 	};
 </script>
 
-//draw map
-<g>
-	{#each counties as county}
-		<path
-			class="focus:fill-cyan-200 stroke-black cursor-pointer stroke-1"
-			d={path(county)}
-			on:mouseover={mouseover(county.properties)}
-			on:focus={mouseover(county.properties)}
-			on:mouseout={() => (tooltip = false)}
-			on:blur={() => (tooltip = false)}
-			on:click={() =>
-				callback(
-					county.properties.NAMELSAD +
-						' || ' +
-						' Deaths per 100,000 [2010-2020]: ' +
-						county.properties.DEATHSPER +
-						' || Pills per 100 [2012]: ' +
-						county.properties.PILLS +
-						' || MAT Providers [2022]: ' +
-						county.properties.MAT
-				)}
-			fill={thisColorScale(county.properties.CL)}
-		/>
-	{/each}
-</g>
-<Tooltip {tooltip}>
-	<p class="my-0">{tooltip}</p>
-</Tooltip>
+<section class="text-center mx-auto">
+	<svg {width} {height} class="mx-auto">
+		<g>
+			{#each counties as county}
+				<path
+					class="focus:fill-cyan-300 hover:fill-cyan-100 stroke-black cursor-pointer stroke-1"
+					d={path(county)}
+					on:mouseover={mouseover(county.properties)}
+					on:focus={mouseover(county.properties)}
+					on:mouseout={() => (tooltip = false)}
+					on:blur={() => (tooltip = false)}
+					on:click={clicked(county.properties)}
+					fill={thisColorScale(county.properties.CL)}
+				/>
+			{/each}
+		</g>
 
-<!-- on:mouseenter={() => (visibleState = county.properties.GEOID)}
-on:mouseleave={() => (visibleState = '')} -->
-
-<!-- //show county names on hover
-<g class="labels">
-	{#each counties as county}
-		<text
-			class:visible={visibleState === county.properties.GEOID}
-			x={path.centroid(county)[0]}
-			y={path.centroid(county)[1]}
-		>
-			{county.properties.NAMELSAD}
-		</text>
-	{/each}
-</g> -->
-
-//create legend with text labels and rects
-<g class="legend">
-	{#each legendText as label, i}
-		<text class="opacity-100 bg-gray-800 text-xs" x={60} y={i * 25 + 440}>{label}</text>
-	{/each}
-</g>
-<g>
-	{#each legendText as label, i}
-		<rect
-			class="legend-rect"
-			x={20}
-			y={i * 24 + 427}
-			fill={legendColors(label)}
-			width="30"
-			height="21"
-		/>
-	{/each}
-</g>
+		<g class="legend">
+			{#each legendText as label, index}
+				<text class="opacity-100 bg-gray-600 text-xs" x={60} y={index * 25 + 440}>{label}</text>
+			{/each}
+		</g>
+		<g>
+			{#each legendText as label, index}
+				<rect
+					class="stroke-black"
+					x={20}
+					y={index * 24 + 427}
+					fill={legendColors(label)}
+					width="30"
+					height="21"
+				/>
+			{/each}
+		</g>
+	</svg>
+	<Tooltip {tooltip}>
+		<p class="my-0">{tooltipData.NAMELSAD}</p>
+	</Tooltip>
+	<Modal {isModalOpen}>
+		<svelte:fragment slot="modal-content">
+			<h1 class="font-bold">{modalData.NAMELSAD}</h1>
+			<h2>MAT Providers [2022]: <span class="font-bold">{modalData.MAT}</span></h2>
+			<h2>Pills per 100 People [2012]: <span class="font-bold">{modalData.PILLS}</span></h2>
+			<h2>
+				Deaths per 100,000 People [2010-2020]: <span class="font-bold">{modalData.DEATHSPER}</span>
+			</h2>
+		</svelte:fragment>
+	</Modal>
+</section>

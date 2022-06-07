@@ -35,5 +35,6 @@
 		bind:offsetWidth={tipWidth}
 	>
 		<slot />
+		<p class="text-xs">click for details</p>
 	</div>
 {/if}
