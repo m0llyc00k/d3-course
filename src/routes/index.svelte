@@ -14,7 +14,8 @@
 	import * as d3 from 'd3';
 	export let title = '';
 
-	const mapURL = 'https://raw.githubusercontent.com/m0llyc00k/Summer2022/main/counties.json';
+	const mapURL =
+		'https://raw.githubusercontent.com/m0llyc00k/Summer2022/main/county-state-analysis.json';
 
 	let counties = [];
 

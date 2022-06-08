@@ -8,6 +8,10 @@
 	import * as d3 from 'd3';
 	import Tooltip from '$lib/components/interactivity/Tooltip.svelte';
 	import Modal from '$lib/components/interactivity/Modal.svelte';
+	import Select from 'svelte-select';
+	// import { select } from 'd3';
+	// import { onMount } from 'svelte';
+
 	export let counties = [];
 
 	export const width = 1200,
@@ -55,6 +59,23 @@
 		modalData = thisCounty;
 		// console.log(tooltipData);
 	};
+
+	let selectCounty = undefined;
+	// const getSelectionLabel = (option) => option.name;
+	// const labelIdentifier = (label) => label.properties.NAMELSAD;
+	const getOptionLabel = (option) => option.properties.NAMELSAD;
+	const groupBy = (item) => item.properties.NAME_2;
+
+	function handleSelectDropdown(event) {
+		isModalOpen = true;
+		modalData = event.detail.properties;
+
+		console.log(selectCounty);
+	}
+
+	function handleClearDropdown() {
+		modalData = undefined;
+	}
 </script>
 
 <section class="text-center mx-auto">
@@ -93,7 +114,7 @@
 		</g>
 	</svg>
 	<Tooltip {tooltip}>
-		<p class="my-0">{tooltipData.NAMELSAD}</p>
+		<p class="my-0">{tooltipData.NAMELSAD}, {tooltipData.STUSPS}</p>
 	</Tooltip>
 	<Modal bind:isModalOpen>
 		<svelte:fragment slot="modal-content">
@@ -106,4 +127,20 @@
 			</h2>
 		</svelte:fragment>
 	</Modal>
+	<form class="max-w-sm flex ...">
+		<div class="flex-1">
+			<Select
+				{getOptionLabel}
+				items={counties}
+				{groupBy}
+				placeholder="Select a County"
+				on:select={handleSelectDropdown}
+				on:clear={handleClearDropdown}
+			/>
+		</div>
+		<!-- <div class="flex-1">
+      <label for="selectCounty">County:</label>
+      <Select class="p-2" {counties} />
+    </div> -->
+	</form>
 </section>
