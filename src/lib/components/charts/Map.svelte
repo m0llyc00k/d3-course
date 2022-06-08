@@ -5,7 +5,7 @@
 	//https://bl.ocks.org/rveciana/9026255839233498dbe979ea69ad3af2
 	//https://svelte.recipes/components/world-map
 
-	import * as d3 from 'd3';
+	import { geoAlbersUsa, geoPath, scaleOrdinal, ascending } from 'd3';
 	import Tooltip from '$lib/components/interactivity/Tooltip.svelte';
 	import Modal from '$lib/components/interactivity/Modal.svelte';
 	import Select from 'svelte-select';
@@ -17,22 +17,24 @@
 	export const width = 1200,
 		height = 550;
 
-	$: projection = d3
-		.geoAlbersUsa()
+	$: projection = geoAlbersUsa()
 		.translate([width / 2, height / 2])
 		.scale([1150]);
 
-	$: path = d3.geoPath(projection);
+	$: path = geoPath(projection);
 
-	$: thisColorScale = d3
-		.scaleOrdinal()
+	$: thisColorScale = scaleOrdinal()
 		.domain([1, 5])
 		.range(['#3b528b', '#fde725', '#440154', '#21908d', '#5dc963']);
 
 	//create legend
-	const legendColors = d3
-		.scaleOrdinal()
-		.range(['#3b528b', '#fde725', '#440154', '#21908d', '#5dc963']);
+	const legendColors = scaleOrdinal().range([
+		'#3b528b',
+		'#fde725',
+		'#440154',
+		'#21908d',
+		'#5dc963'
+	]);
 
 	const legendLabels = [
 		'Low MAT Rate, High Pill Rate, Moderate Death Rate',
@@ -60,15 +62,26 @@
 		// console.log(tooltipData);
 	};
 
+	$: selectCounties = counties
+		.map((county) => {
+			return {
+				name: county.properties.NAMELSAD,
+				state: county.properties.NAME_2,
+				data: county.properties
+			};
+		})
+		.sort((a, b) => ascending(a.name, b.name))
+		.sort((a, b) => ascending(a.state, b.state));
+
 	let selectCounty = undefined;
 	// const getSelectionLabel = (option) => option.name;
 	// const labelIdentifier = (label) => label.properties.NAMELSAD;
-	const getOptionLabel = (option) => option.properties.NAMELSAD;
-	const groupBy = (item) => item.properties.NAME_2;
+	const getOptionLabel = (option) => option.name;
+	const groupBy = (option) => option.state;
 
 	function handleSelectDropdown(event) {
 		isModalOpen = true;
-		modalData = event.detail.properties;
+		modalData = event.detail.data;
 
 		console.log(selectCounty);
 	}
@@ -131,7 +144,7 @@
 		<div class="flex-1">
 			<Select
 				{getOptionLabel}
-				items={counties}
+				items={selectCounties}
 				{groupBy}
 				placeholder="Select a County"
 				on:select={handleSelectDropdown}
