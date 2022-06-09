@@ -31,18 +31,34 @@
 		{
 			data: 1,
 			value: 'High MAT Rate, Moderate Pill Rate, High Death Rate',
-			class: 'fill-map-yellow'
+			class: 'fill-map-yellow',
+			color: 'map-yellow'
 		},
-		{ data: 2, value: 'High MAT Rate, High Pill Rate, High Death Rate', class: 'fill-map-green' },
-		{ data: 3, value: 'Low MAT Rate, High Pill Rate, Moderate Death Rate', class: 'fill-map-blue' },
-		{ data: 4, value: 'Low MAT Rate, High Pill Rate, High Death Rate', class: 'fill-map-teal' },
-		{ data: 5, value: 'Unknown or Low Risk Status', class: 'fill-map-purple' }
+		{
+			data: 2,
+			value: 'High MAT Rate, High Pill Rate, High Death Rate',
+			class: 'fill-map-green',
+			color: 'map-green'
+		},
+		{
+			data: 3,
+			value: 'Low MAT Rate, High Pill Rate, Moderate Death Rate',
+			class: 'fill-map-blue',
+			color: 'map-blue'
+		},
+		{
+			data: 4,
+			value: 'Low MAT Rate, High Pill Rate, High Death Rate',
+			class: 'fill-map-teal',
+			color: 'map-teal'
+		},
+		{ data: 5, value: 'Unknown or Low Risk Status', class: 'fill-map-purple', color: 'map-purple' }
 	];
 
-	// let colors = legend.map((d) => d.color);
-	// let colors2 = Array.from(colors);
+	let colors = legend.map((d) => d.color);
+	console.log(colors);
 
-	// const legendColors = scaleOrdinal().range(colors2);
+	$: colorScale = scaleOrdinal().domain([1, 5]).range(colors);
 
 	let tooltip;
 	let tooltipData;
@@ -68,6 +84,7 @@
 			return {
 				name: county.properties.NAMELSAD,
 				state: county.properties.NAME_2,
+				status: county.properties.CL,
 				data: county.properties
 			};
 		})
@@ -106,15 +123,18 @@
 	<svg {width} {height} class="mx-auto">
 		<g>
 			{#each counties as county}
-				<path
-					class="focus:fill-cyan-300 hover:fill-cyan-100 stroke-black cursor-pointer stroke-1"
-					d={path(county)}
-					on:mouseover={mouseover(county.properties)}
-					on:focus={mouseover(county.properties)}
-					on:mouseout={() => (tooltip = false)}
-					on:blur={() => (tooltip = false)}
-					on:click={clicked(county.properties)}
-				/>
+				{#each legend as label}
+					<path
+						class="focus:fill-cyan-300 hover:fill-cyan-100 stroke-black cursor-pointer"
+						d={path(county)}
+						on:mouseover={mouseover(county.properties)}
+						on:focus={mouseover(county.properties)}
+						on:mouseout={() => (tooltip = false)}
+						on:blur={() => (tooltip = false)}
+						fill={colorScale(county.properties.CL)}
+						on:click={clicked(county.properties)}
+					/>
+				{/each}
 			{/each}
 		</g>
 		<!-- fill={thisColorScale(county.properties.CL)} -->

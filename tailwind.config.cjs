@@ -3,6 +3,13 @@ const { amber } = require('tailwindcss/colors');
 module.exports = {
 	content: ['./src/**/*.{html,js,svelte,ts}', './src/lib/data/copy.json'],
 	plugins: [require('@tailwindcss/typography'), require('@tailwindcss/forms')],
+	safelist: [
+		'map-blue',
+		'map-yellow',
+		'map-purple',
+		'map-teal',
+		'map-green'
+	  ],
 	theme: {
 		screens: {
 			sm: '640px',
