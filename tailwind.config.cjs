@@ -48,7 +48,19 @@ module.exports = {
 				secondary: {
 					light: amber['100'],
 					DEFAULT: amber['300']
-				}
+				},
+				// mapBlue: '#3b528b',
+				// mapYellow: '#fde725',
+				// mapPurple: '#440154',
+				// mapTeal: '#21908d',
+				// mapGreen: '#5dc963',
+				map: {
+					blue: '#3b528b',
+					yellow: '#fde725',
+					purple: '#440154',
+					teal: '#21908d',
+					green: '#5dc963'
+			}
 			}
 		}
 	}
