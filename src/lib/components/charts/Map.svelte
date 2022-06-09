@@ -5,6 +5,11 @@
 	//https://bl.ocks.org/rveciana/9026255839233498dbe979ea69ad3af2
 	//https://svelte.recipes/components/world-map
 
+	//Tasks
+	//connect dropdown to county paths (county shape highlighted when clicked on dropdown)
+	//add color/ vulnerability status to modal to understand details (reinforce legend)
+	//click off dropdown to reset (right now, only works when 'x' is clicked)
+
 	import { geoAlbersUsa, geoPath, scaleOrdinal, ascending } from 'd3';
 	import Tooltip from '$lib/components/interactivity/Tooltip.svelte';
 	import Modal from '$lib/components/interactivity/Modal.svelte';
