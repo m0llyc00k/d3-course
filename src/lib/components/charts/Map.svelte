@@ -9,19 +9,17 @@
 	import Tooltip from '$lib/components/interactivity/Tooltip.svelte';
 	import Modal from '$lib/components/interactivity/Modal.svelte';
 	import Select from 'svelte-select';
-	// import { select } from 'd3';
-	// import { onMount } from 'svelte';
 
 	export let counties = [];
 
 	export const width = 1200,
 		height = 550;
 
-	$: projection = geoAlbersUsa()
+	const projection = geoAlbersUsa()
 		.translate([width / 2, height / 2])
 		.scale([1150]);
 
-	$: path = geoPath(projection);
+	const path = geoPath(projection);
 
 	$: thisColorScale = scaleOrdinal()
 		.domain([1, 5])
@@ -39,7 +37,7 @@
 	const legendLabels = [
 		'Low MAT Rate, High Pill Rate, Moderate Death Rate',
 		'High MAT Rate, Moderate Pill Rate, High Death Rate',
-		'Unknown Risk Status',
+		'Unknown or Low Risk Status',
 		'Low MAT Rate, High Pill Rate, High Death Rate',
 		'High MAT Rate, High Pill Rate, High Death Rate'
 	];
@@ -73,17 +71,14 @@
 		.sort((a, b) => ascending(a.name, b.name))
 		.sort((a, b) => ascending(a.state, b.state));
 
-	let selectCounty = undefined;
-	// const getSelectionLabel = (option) => option.name;
-	// const labelIdentifier = (label) => label.properties.NAMELSAD;
+	// let selectCounty = undefined;
+	const getSelectionLabel = (option) => option.name;
 	const getOptionLabel = (option) => option.name;
 	const groupBy = (option) => option.state;
 
 	function handleSelectDropdown(event) {
 		isModalOpen = true;
 		modalData = event.detail.data;
-
-		console.log(selectCounty);
 	}
 
 	function handleClearDropdown() {
@@ -91,7 +86,19 @@
 	}
 </script>
 
-<section class="text-center mx-auto">
+<form class="max-w-sm m-auto pt-4 text-left">
+	<Select
+		class="text-left"
+		{getOptionLabel}
+		{getSelectionLabel}
+		items={selectCounties}
+		{groupBy}
+		placeholder="Select a County to See Details"
+		on:select={handleSelectDropdown}
+		on:clear={handleClearDropdown}
+	/>
+</form>
+<section class="text-center m-4">
 	<svg {width} {height} class="mx-auto">
 		<g>
 			{#each counties as county}
@@ -131,29 +138,23 @@
 	</Tooltip>
 	<Modal bind:isModalOpen>
 		<svelte:fragment slot="modal-content">
-			<h1 class="font-bold">{modalData.NAMELSAD}</h1>
+			<h1 class="font-bold">{modalData.NAMELSAD}, {modalData.STUSPS}</h1>
 			<hr class="py-2" />
-			<h2>MAT Providers [2022]: <span class="font-bold">{modalData.MAT}</span></h2>
-			<h2>Pills per 100 People [2012]: <span class="font-bold">{modalData.PILLS}</span></h2>
-			<h2>
-				Deaths per 100,000 People [2010-2020]: <span class="font-bold">{modalData.DEATHSPER}</span>
-			</h2>
+			<div class="text-left">
+				<h2>
+					MAT Providers [2022]: <span class="font-bold">{modalData.MAT}</span>
+				</h2>
+				<h2>
+					Pills per 100 People [2012]: <span class="font-bold"
+						>{modalData.PILLS != null ? modalData.PILLS : 'No Data Available'}</span
+					>
+				</h2>
+				<h2>
+					Deaths per 100,000 People [2010-2020]: <span class="font-bold"
+						>{modalData.DEATHSPER != null ? modalData.DEATHSPER : 'No Data Available'}</span
+					>
+				</h2>
+			</div>
 		</svelte:fragment>
 	</Modal>
-	<form class="max-w-sm flex ...">
-		<div class="flex-1">
-			<Select
-				{getOptionLabel}
-				items={selectCounties}
-				{groupBy}
-				placeholder="Select a County"
-				on:select={handleSelectDropdown}
-				on:clear={handleClearDropdown}
-			/>
-		</div>
-		<!-- <div class="flex-1">
-      <label for="selectCounty">County:</label>
-      <Select class="p-2" {counties} />
-    </div> -->
-	</form>
 </section>
