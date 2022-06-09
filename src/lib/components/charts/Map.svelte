@@ -26,10 +26,6 @@
 
 	const path = geoPath(projection);
 
-	// let colors = []
-
-	// $: thisColorScale = scaleOrdinal().domain([1, 5]).range({colors});
-
 	//create legend
 	const legend = [
 		{
