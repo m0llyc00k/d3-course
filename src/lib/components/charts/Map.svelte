@@ -99,7 +99,7 @@
 	};
 </script>
 
-<form class="max-w-sm m-auto pt-4 text-left">
+<form class="max-w-sm m-auto p-5 text-left">
 	<Select
 		class="text-left"
 		{getOptionLabel}
@@ -111,15 +111,13 @@
 		on:clear={handleClearDropdown}
 	/>
 </form>
-<div id="legend">
-	<div class="flex flex-col gap-y-2">
-		{#each legend as label}
-			<div class="flex flex-row items-center gap-x-2">
-				<div class="w-[20px] h-[20px] bg-{label.color} border-black border-1" />
-				<p class="opacity-100 text-xs text-left">{label.value}</p>
-			</div>
-		{/each}
-	</div>
+<div id="legend" class="flex gap-x-3 grid-cols-3 mx-auto p-1 border">
+	{#each legend as label}
+		<div class="flex flex-row items-center border m-1 p-1 gap-x-2">
+			<div class="w-[25px] h-[30px] bg-{label.color} border-black border" />
+			<p class="text-xs text-left">{label.value}</p>
+		</div>
+	{/each}
 </div>
 <section class="text-center m-4">
 	<svg {width} {height} class="mx-auto">
