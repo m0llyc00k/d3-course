@@ -10,7 +10,7 @@
 	//add color/ vulnerability status to modal to understand details (reinforce legend)
 	//click off dropdown to reset (right now, only works when 'x')
 
-	import { geoAlbersUsa, geoPath, scaleOrdinal, ascending } from 'd3';
+	import { geoAlbersUsa, geoPath, ascending } from 'd3';
 	import Tooltip from '$lib/components/interactivity/Tooltip.svelte';
 	import Modal from '$lib/components/interactivity/Modal.svelte';
 	import Select from 'svelte-select';
@@ -31,31 +31,26 @@
 		{
 			CL: 2,
 			value: 'High MAT Rate, Moderate Pill Rate, High Death Rate',
-			class: 'fill-map-yellow',
 			color: 'map-yellow'
 		},
 		{
 			CL: 5,
 			value: 'High MAT Rate, High Pill Rate, High Death Rate',
-			class: 'fill-map-green',
 			color: 'map-green'
 		},
 		{
 			CL: 1,
 			value: 'Low MAT Rate, High Pill Rate, Moderate Death Rate',
-			class: 'fill-map-blue',
 			color: 'map-blue'
 		},
 		{
 			CL: 4,
 			value: 'Low MAT Rate, High Pill Rate, High Death Rate',
-			class: 'fill-map-teal',
 			color: 'map-teal'
 		},
 		{
 			CL: 3,
 			value: 'Unknown or Low Risk Status',
-			class: 'fill-map-purple',
 			color: 'map-purple'
 		}
 	];
@@ -72,21 +67,15 @@
 		.sort((a, b) => ascending(a.name, b.name))
 		.sort((a, b) => ascending(a.state, b.state));
 
-	// console.log(colorCorrect);
-
-	// let colors = colorCorrect.map((d) => d.class).sort((a, b) => a.CL - b.CL);
-
 	let tooltip;
 	let tooltipData;
 	let modalData;
 	let isModalOpen;
 
-	// console.log(colors2);
-
 	const mouseover = (thisCounty) => {
 		tooltip = true;
 		tooltipData = thisCounty;
-		// console.log(tooltipData);
+		console.log(tooltipData);
 	};
 
 	const clicked = (thisCounty) => {
@@ -99,14 +88,6 @@
 	const getSelectionLabel = (option) => option.name;
 	const getOptionLabel = (option) => option.name;
 	const groupBy = (option) => option.state;
-
-	let colorCorrect = legend.sort((a, b) => {
-		return a.CL - b.CL;
-	});
-
-	let colors = colorCorrect.map((d) => d.class);
-
-	$: colorScale = scaleOrdinal().domain([1, 5]).range(colors);
 
 	const handleSelectDropdown = (event) => {
 		isModalOpen = true;
@@ -131,39 +112,29 @@
 	/>
 </form>
 <div id="legend">
-	{#each legend as label}
-		<p class="opacity-100 text-xs text-left">{label.value}</p>
-		<rect class="stroke-black {label.class}" width="30" height="21" />
-	{/each}
+	<div class="flex flex-col gap-y-2">
+		{#each legend as label}
+			<div class="flex flex-row items-center gap-x-2">
+				<div class="w-[20px] h-[20px] bg-{label.color} border-black border-1" />
+				<p class="opacity-100 text-xs text-left">{label.value}</p>
+			</div>
+		{/each}
+	</div>
 </div>
 <section class="text-center m-4">
 	<svg {width} {height} class="mx-auto">
 		<g>
 			{#each counties as county}
 				<path
-					class="focus:fill-cyan-300 hover:fill-cyan-100 stroke-black cursor-pointer {colorScale(
-						county.properties.CL
-					)}"
+					class="focus:fill-cyan-300 hover:fill-cyan-100 stroke-black cursor-pointer fill-{legend.find(
+						(d) => d.CL === county.properties.CL
+					).color}"
 					d={path(county)}
 					on:mouseover={mouseover(county.properties)}
 					on:focus={mouseover(county.properties)}
 					on:mouseout={() => (tooltip = false)}
 					on:blur={() => (tooltip = false)}
 					on:click={clicked(county.properties)}
-				/>
-			{/each}
-		</g>
-		<g class="legend">
-			{#each legend as label, index}
-				<text class="opacity-100 bg-gray-600 text-xs" x={60} y={index * 25 + 440}
-					>{label.value}</text
-				>
-				<rect
-					class="stroke-black {label.class}"
-					x={20}
-					y={index * 24 + 427}
-					width="30"
-					height="21"
 				/>
 			{/each}
 		</g>

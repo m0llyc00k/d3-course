@@ -4,17 +4,17 @@ module.exports = {
 	content: ['./src/**/*.{html,js,svelte,ts}', './src/lib/data/copy.json'],
 	plugins: [require('@tailwindcss/typography'), require('@tailwindcss/forms')],
 	safelist: [
-		'map-blue',
-		'map-yellow',
-		'map-purple',
-		'map-teal',
-		'map-green',
+		'bg-map-blue',
+		'bg-map-yellow',
+		'bg-map-purple',
+		'bg-map-teal',
+		'bg-map-green',
 		'fill-map-blue',
 		'fill-map-yellow',
 		'fill-map-purple',
 		'fill-map-teal',
 		'fill-map-green'
-	  ],
+	],
 	theme: {
 		screens: {
 			sm: '640px',
@@ -67,7 +67,7 @@ module.exports = {
 					purple: '#440154',
 					teal: '#21908d',
 					green: '#5dc963'
-			}
+				}
 			}
 		}
 	}
