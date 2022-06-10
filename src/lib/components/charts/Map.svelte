@@ -75,7 +75,7 @@
 	const mouseover = (thisCounty) => {
 		tooltip = true;
 		tooltipData = thisCounty;
-		console.log(tooltipData);
+		// console.log(tooltipData);
 	};
 
 	const clicked = (thisCounty) => {
