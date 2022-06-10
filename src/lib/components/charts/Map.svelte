@@ -29,12 +29,12 @@
 	//create legend
 	const legend = [
 		{
-			CL: 2,
+			CL: 5,
 			value: 'High MAT Rate, Moderate Pill Rate, High Death Rate',
 			color: 'map-yellow'
 		},
 		{
-			CL: 5,
+			CL: 4,
 			value: 'High MAT Rate, High Pill Rate, High Death Rate',
 			color: 'map-green'
 		},
@@ -44,12 +44,12 @@
 			color: 'map-blue'
 		},
 		{
-			CL: 4,
+			CL: 3,
 			value: 'Low MAT Rate, High Pill Rate, High Death Rate',
 			color: 'map-teal'
 		},
 		{
-			CL: 3,
+			CL: 2,
 			value: 'Unknown or Low Risk Status',
 			color: 'map-purple'
 		}
