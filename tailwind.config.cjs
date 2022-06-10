@@ -8,7 +8,12 @@ module.exports = {
 		'map-yellow',
 		'map-purple',
 		'map-teal',
-		'map-green'
+		'map-green',
+		'fill-map-blue',
+		'fill-map-yellow',
+		'fill-map-purple',
+		'fill-map-teal',
+		'fill-map-green'
 	  ],
 	theme: {
 		screens: {

@@ -29,36 +29,52 @@
 	//create legend
 	const legend = [
 		{
-			data: 1,
+			CL: 2,
 			value: 'High MAT Rate, Moderate Pill Rate, High Death Rate',
 			class: 'fill-map-yellow',
 			color: 'map-yellow'
 		},
 		{
-			data: 2,
+			CL: 5,
 			value: 'High MAT Rate, High Pill Rate, High Death Rate',
 			class: 'fill-map-green',
 			color: 'map-green'
 		},
 		{
-			data: 3,
+			CL: 1,
 			value: 'Low MAT Rate, High Pill Rate, Moderate Death Rate',
 			class: 'fill-map-blue',
 			color: 'map-blue'
 		},
 		{
-			data: 4,
+			CL: 4,
 			value: 'Low MAT Rate, High Pill Rate, High Death Rate',
 			class: 'fill-map-teal',
 			color: 'map-teal'
 		},
-		{ data: 5, value: 'Unknown or Low Risk Status', class: 'fill-map-purple', color: 'map-purple' }
+		{
+			CL: 3,
+			value: 'Unknown or Low Risk Status',
+			class: 'fill-map-purple',
+			color: 'map-purple'
+		}
 	];
 
-	let colors = legend.map((d) => d.color);
-	console.log(colors);
+	$: selectCounties = counties
+		.map((county) => {
+			return {
+				name: county.properties.NAMELSAD,
+				state: county.properties.NAME_2,
+				statusCL: county.properties.CL,
+				data: county.properties
+			};
+		})
+		.sort((a, b) => ascending(a.name, b.name))
+		.sort((a, b) => ascending(a.state, b.state));
 
-	$: colorScale = scaleOrdinal().domain([1, 5]).range(colors);
+	// console.log(colorCorrect);
+
+	// let colors = colorCorrect.map((d) => d.class).sort((a, b) => a.CL - b.CL);
 
 	let tooltip;
 	let tooltipData;
@@ -79,22 +95,18 @@
 		// console.log(tooltipData);
 	};
 
-	$: selectCounties = counties
-		.map((county) => {
-			return {
-				name: county.properties.NAMELSAD,
-				state: county.properties.NAME_2,
-				status: county.properties.CL,
-				data: county.properties
-			};
-		})
-		.sort((a, b) => ascending(a.name, b.name))
-		.sort((a, b) => ascending(a.state, b.state));
-
 	// let selectCounty = undefined;
 	const getSelectionLabel = (option) => option.name;
 	const getOptionLabel = (option) => option.name;
 	const groupBy = (option) => option.state;
+
+	let colorCorrect = legend.sort((a, b) => {
+		return a.CL - b.CL;
+	});
+
+	let colors = colorCorrect.map((d) => d.class);
+
+	$: colorScale = scaleOrdinal().domain([1, 5]).range(colors);
 
 	const handleSelectDropdown = (event) => {
 		isModalOpen = true;
@@ -118,36 +130,34 @@
 		on:clear={handleClearDropdown}
 	/>
 </form>
-
+<div id="legend">
+	{#each legend as label}
+		<p class="opacity-100 text-xs text-left">{label.value}</p>
+		<rect class="stroke-black {label.class}" width="30" height="21" />
+	{/each}
+</div>
 <section class="text-center m-4">
 	<svg {width} {height} class="mx-auto">
 		<g>
 			{#each counties as county}
-				{#each legend as label}
-					<path
-						class="focus:fill-cyan-300 hover:fill-cyan-100 stroke-black cursor-pointer"
-						d={path(county)}
-						on:mouseover={mouseover(county.properties)}
-						on:focus={mouseover(county.properties)}
-						on:mouseout={() => (tooltip = false)}
-						on:blur={() => (tooltip = false)}
-						fill={colorScale(county.properties.CL)}
-						on:click={clicked(county.properties)}
-					/>
-				{/each}
+				<path
+					class="focus:fill-cyan-300 hover:fill-cyan-100 stroke-black cursor-pointer {colorScale(
+						county.properties.CL
+					)}"
+					d={path(county)}
+					on:mouseover={mouseover(county.properties)}
+					on:focus={mouseover(county.properties)}
+					on:mouseout={() => (tooltip = false)}
+					on:blur={() => (tooltip = false)}
+					on:click={clicked(county.properties)}
+				/>
 			{/each}
 		</g>
-		<!-- fill={thisColorScale(county.properties.CL)} -->
-
 		<g class="legend">
 			{#each legend as label, index}
 				<text class="opacity-100 bg-gray-600 text-xs" x={60} y={index * 25 + 440}
 					>{label.value}</text
 				>
-			{/each}
-		</g>
-		<g>
-			{#each legend as label, index}
 				<rect
 					class="stroke-black {label.class}"
 					x={20}
