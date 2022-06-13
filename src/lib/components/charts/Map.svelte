@@ -11,7 +11,8 @@
 	//click off dropdown to reset (right now, only works when 'x')
 
 	import { geoAlbersUsa, geoPath, ascending } from 'd3';
-	import Tooltip from '$lib/components/interactivity/Tooltip.svelte';
+	import TooltipMap from '$lib/components/interactivity/TooltipMap.svelte';
+	import TooltipLegend from '$lib/components/interactivity/TooltipLegend.svelte';
 	import Modal from '$lib/components/interactivity/Modal.svelte';
 	import Select from 'svelte-select';
 
@@ -20,14 +21,16 @@
 	export const width = 1200,
 		height = 550;
 
+	let containerWidth = 1200;
+
 	const projection = geoAlbersUsa()
-		.translate([width / 2, height / 2])
+		.translate([containerWidth / 2, height / 2])
 		.scale([1150]);
 
 	const path = geoPath(projection);
 
 	//create legend
-	const legend = [
+	const legendStatusData = [
 		{
 			CL: 5,
 			value: 'High MAT Rate, Moderate Pill Rate, High Death Rate',
@@ -67,15 +70,22 @@
 		.sort((a, b) => ascending(a.name, b.name))
 		.sort((a, b) => ascending(a.state, b.state));
 
-	let tooltip;
+	let tooltipMap;
+	let tooltipLegend;
 	let tooltipData;
+	let legendData;
 	let modalData;
 	let isModalOpen;
 
 	const mouseover = (thisCounty) => {
-		tooltip = true;
+		tooltipMap = true;
 		tooltipData = thisCounty;
-		// console.log(tooltipData);
+	};
+
+	const mouseoverLegend = (thisLabel) => {
+		tooltipLegend = true;
+		legendData = thisLabel;
+		// console.log('mouseovered!!');
 	};
 
 	const clicked = (thisCounty) => {
@@ -111,11 +121,20 @@
 		on:clear={handleClearDropdown}
 	/>
 </form>
-<div id="legend" class="flex gap-x-3 grid-cols-3 mx-auto p-1 border">
-	{#each legend as label}
-		<div class="flex flex-row items-center border m-1 p-1 gap-x-2">
-			<div class="w-[25px] h-[30px] bg-{label.color} border-black border" />
-			<p class="text-xs text-left">{label.value}</p>
+<div
+	id="legend"
+	class="flex gap-x-1 items-center content-center place-items-center justify-center p-5"
+>
+	{#each legendStatusData as label}
+		<div class="flex flex-row">
+			<div
+				class="w-[70px] h-[20px] bg-{label.color} border-black border"
+				on:mouseover={mouseoverLegend(label)}
+				on:focus={mouseoverLegend(label)}
+				on:mouseout={() => (tooltipLegend = false)}
+				on:blur={() => (tooltipLegend = false)}
+			/>
+			<!-- <p class="text-xs text-left">{label.value}</p> -->
 		</div>
 	{/each}
 </div>
@@ -124,22 +143,28 @@
 		<g>
 			{#each counties as county}
 				<path
-					class="focus:fill-cyan-300 hover:fill-cyan-100 stroke-black cursor-pointer fill-{legend.find(
+					class="focus:fill-cyan-300 hover:fill-cyan-100 stroke-black cursor-pointer fill-{legendStatusData.find(
 						(d) => d.CL === county.properties.CL
 					).color}"
 					d={path(county)}
 					on:mouseover={mouseover(county.properties)}
 					on:focus={mouseover(county.properties)}
-					on:mouseout={() => (tooltip = false)}
-					on:blur={() => (tooltip = false)}
+					on:mouseout={() => (tooltipMap = false)}
+					on:blur={() => (tooltipMap = false)}
 					on:click={clicked(county.properties)}
 				/>
 			{/each}
 		</g>
 	</svg>
-	<Tooltip {tooltip}>
+
+	<TooltipMap {tooltipMap}>
 		<p class="my-0">{tooltipData.NAMELSAD}, {tooltipData.STUSPS}</p>
-	</Tooltip>
+	</TooltipMap>
+
+	<TooltipLegend {tooltipLegend}>
+		<p class="my-0">{legendData.value}</p>
+	</TooltipLegend>
+
 	<Modal bind:isModalOpen>
 		<svelte:fragment slot="modal-content">
 			<h1 class="font-bold">{modalData.NAMELSAD}, {modalData.STUSPS}</h1>
