@@ -117,12 +117,12 @@
 		on:clear={handleClearDropdown}
 	/>
 </form>
-<div id="legend" class="flex gap-x-1 justify-center p-3">
+<div id="legend" class="grid grid-cols-5 gap-x-1 justify-center p-3">
 	{#each legendStatusData as label}
-		<div class="flex flex-col items-center">
+		<div class="flex flex-col items-center flex-1">
 			<p class="text-xs text-left capitalize">{label.status}</p>
 			<div
-				class="w-[70px] h-[20px] bg-{label.color} border-black border"
+				class="w-full h-[20px] bg-{label.color} border-black border"
 				data-tooltip={label.value}
 			/>
 		</div>
