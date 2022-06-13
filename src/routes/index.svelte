@@ -1,10 +1,5 @@
 <script context="module">
-	// https://kit.svelte.dev/docs#loading
 	/** @type {import('@sveltejs/kit').Load} */
-	// export async function load({ params, fetch, session, stuff }) {
-	// 	return {
-	// 	};
-	// }
 </script>
 
 <script>
@@ -16,8 +11,6 @@
 
 	const mapURL =
 		'https://raw.githubusercontent.com/m0llyc00k/Summer2022/main/county-state-analysis.json';
-
-	export let geojson = [];
 </script>
 
 <article class="prose-headings:text-primary pt-4 content-well text-center">

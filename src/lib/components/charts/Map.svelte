@@ -19,7 +19,7 @@
 	// import { raise } from 'layercake';
 	import topojson from '$lib/data/cartography/counties.topojson.json';
 
-	const heightWidthProportion = 0.585;
+	const heightWidthProportion = 0.76;
 	const viewboxDims = [600, 500 * heightWidthProportion];
 
 	const geojson = feature(topojson, topojson.objects.collection);

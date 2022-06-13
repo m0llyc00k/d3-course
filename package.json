@@ -41,6 +41,7 @@
 		"htmlparser2": "^8.0.1",
 		"netlify": "^11.0.1",
 		"node-fetch": "^3.2.4",
+		"prettier-plugin-tailwindcss": "^0.1.11",
 		"svelte-select": "^4.4.7"
 	}
 }
