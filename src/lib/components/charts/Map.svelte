@@ -11,10 +11,12 @@
 	//click off dropdown to reset (right now, only works when 'x')
 
 	import { geoAlbersUsa, geoPath, ascending } from 'd3';
+	// import * as d3 from 'd3';
 	import TooltipMap from '$lib/components/interactivity/TooltipMap.svelte';
 	import Modal from '$lib/components/interactivity/Modal.svelte';
 	import Select from 'svelte-select';
 	import { feature } from 'topojson-client';
+	// import { raise } from 'layercake';
 	import topojson from '$lib/data/cartography/counties.topojson.json';
 
 	const heightWidthProportion = 0.585;
@@ -76,12 +78,12 @@
 	let modalData;
 	let isModalOpen;
 
-	const mouseover = (thisCounty) => {
+	const mouseover = (thisCounty, e) => {
 		tooltipMap = true;
 		tooltipData = thisCounty;
 	};
 
-	const clicked = (thisCounty) => {
+	const clicked = (thisCounty, e) => {
 		isModalOpen = true;
 		modalData = thisCounty;
 		// console.log(tooltipData);
