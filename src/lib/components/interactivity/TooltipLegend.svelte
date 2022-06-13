@@ -30,7 +30,7 @@
 <svelte:window on:mousemove={mousemove} bind:innerWidth={pageWidth} />
 {#if tooltipLegend}
 	<div
-		class="bg-white text-primary fixed border border-primary rounded-sm shadow-md text-left px-2 py-1 z-40 pointer-events-none text-base font-regular max-w-[200px] w-auto"
+		class="bg-black text-white fixed rounded-sm shadow-md text-left px-2 py-1 z-40 pointer-events-none font-regular text-xs max-w-[200px] w-auto"
 		style="left:{left}px;top:{top}px;"
 		bind:offsetWidth={tipWidth}
 	>

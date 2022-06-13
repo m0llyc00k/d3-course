@@ -12,7 +12,6 @@
 
 	import { geoAlbersUsa, geoPath, ascending } from 'd3';
 	import TooltipMap from '$lib/components/interactivity/TooltipMap.svelte';
-	import TooltipLegend from '$lib/components/interactivity/TooltipLegend.svelte';
 	import Modal from '$lib/components/interactivity/Modal.svelte';
 	import Select from 'svelte-select';
 
@@ -32,29 +31,34 @@
 	//create legend
 	const legendStatusData = [
 		{
+			CL: 2,
+			value: 'Insufficient Data',
+			color: 'map-purple',
+			status: 'unknown'
+		},
+		{
 			CL: 5,
 			value: 'High MAT Rate, Moderate Pill Rate, High Death Rate',
-			color: 'map-yellow'
+			color: 'map-yellow',
+			status: 'low'
 		},
 		{
 			CL: 4,
 			value: 'High MAT Rate, High Pill Rate, High Death Rate',
-			color: 'map-green'
+			color: 'map-green',
+			status: 'moderate'
 		},
 		{
 			CL: 1,
 			value: 'Low MAT Rate, High Pill Rate, Moderate Death Rate',
-			color: 'map-blue'
+			color: 'map-blue',
+			status: 'high'
 		},
 		{
 			CL: 3,
 			value: 'Low MAT Rate, High Pill Rate, High Death Rate',
-			color: 'map-teal'
-		},
-		{
-			CL: 2,
-			value: 'Unknown or Low Risk Status',
-			color: 'map-purple'
+			color: 'map-teal',
+			status: 'highest'
 		}
 	];
 
@@ -71,21 +75,13 @@
 		.sort((a, b) => ascending(a.state, b.state));
 
 	let tooltipMap;
-	let tooltipLegend;
 	let tooltipData;
-	let legendData;
 	let modalData;
 	let isModalOpen;
 
 	const mouseover = (thisCounty) => {
 		tooltipMap = true;
 		tooltipData = thisCounty;
-	};
-
-	const mouseoverLegend = (thisLabel) => {
-		tooltipLegend = true;
-		legendData = thisLabel;
-		// console.log('mouseovered!!');
 	};
 
 	const clicked = (thisCounty) => {
@@ -121,20 +117,14 @@
 		on:clear={handleClearDropdown}
 	/>
 </form>
-<div
-	id="legend"
-	class="flex gap-x-1 items-center content-center place-items-center justify-center p-5"
->
+<div id="legend" class="flex gap-x-1 justify-center p-3">
 	{#each legendStatusData as label}
-		<div class="flex flex-row">
+		<div class="flex flex-col items-center">
+			<p class="text-xs text-left pb-2">{label.status}</p>
 			<div
 				class="w-[70px] h-[20px] bg-{label.color} border-black border"
-				on:mouseover={mouseoverLegend(label)}
-				on:focus={mouseoverLegend(label)}
-				on:mouseout={() => (tooltipLegend = false)}
-				on:blur={() => (tooltipLegend = false)}
+				data-tooltip={label.value}
 			/>
-			<!-- <p class="text-xs text-left">{label.value}</p> -->
 		</div>
 	{/each}
 </div>
@@ -160,10 +150,6 @@
 	<TooltipMap {tooltipMap}>
 		<p class="my-0">{tooltipData.NAMELSAD}, {tooltipData.STUSPS}</p>
 	</TooltipMap>
-
-	<TooltipLegend {tooltipLegend}>
-		<p class="my-0">{legendData.value}</p>
-	</TooltipLegend>
 
 	<Modal bind:isModalOpen>
 		<svelte:fragment slot="modal-content">
