@@ -120,7 +120,7 @@
 <div id="legend" class="flex gap-x-1 justify-center p-3">
 	{#each legendStatusData as label}
 		<div class="flex flex-col items-center">
-			<p class="text-xs text-left pb-2">{label.status}</p>
+			<p class="text-xs text-left capitalize">{label.status}</p>
 			<div
 				class="w-[70px] h-[20px] bg-{label.color} border-black border"
 				data-tooltip={label.value}
