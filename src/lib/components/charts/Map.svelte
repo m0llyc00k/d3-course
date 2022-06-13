@@ -28,7 +28,7 @@
 	const path = geoPath(projectionFn);
 
 	//create legend
-	const legendStatusData = [
+	let legendStatusData = [
 		{
 			CL: 2,
 			value: 'Insufficient Data',
@@ -78,12 +78,12 @@
 	let modalData;
 	let isModalOpen;
 
-	const mouseover = (thisCounty, e) => {
+	const mouseover = (thisCounty) => {
 		tooltipMap = true;
 		tooltipData = thisCounty;
 	};
 
-	const clicked = (thisCounty, e) => {
+	const clicked = (thisCounty) => {
 		isModalOpen = true;
 		modalData = thisCounty;
 		// console.log(tooltipData);
@@ -93,6 +93,7 @@
 	const getSelectionLabel = (option) => option.name;
 	const getOptionLabel = (option) => option.name;
 	const groupBy = (option) => option.state;
+	let CLstatus = (d) => d.CL;
 
 	const handleSelectDropdown = (event) => {
 		isModalOpen = true;
@@ -134,16 +135,15 @@
 	>
 		<g>
 			{#each geojson.features as feature}
+				{@const color = legendStatusData.find((d) => d.CL === feature.properties.CL).color}
 				<path
-					class="focus:fill-cyan-300 hover:fill-cyan-100 stroke-black stroke-[0.4px] cursor-pointer fill-{legendStatusData.find(
-						(d) => d.CL === feature.properties.CL
-					).color}"
+					class="focus:fill-cyan-300 hover:fill-cyan-100 stroke-black stroke-[0.4px] cursor-pointer fill-{color}"
 					d={path(feature)}
-					on:mouseover={() => mouseover(feature.properties)}
-					on:focus={() => mouseover(feature.properties)}
+					on:mouseover={() => mouseover({ ...feature.properties, color })}
+					on:focus={() => mouseover({ ...feature.properties, color })}
 					on:mouseout={() => (tooltipMap = false)}
 					on:blur={() => (tooltipMap = false)}
-					on:click={() => clicked(feature.properties)}
+					on:click={() => clicked({ ...feature.properties, color })}
 				>
 					<title>{feature.properties.name}</title>
 				</path>
@@ -155,9 +155,11 @@
 		<p class="my-0">{tooltipData.NAMELSAD}, {tooltipData.STUSPS}</p>
 	</TooltipMap>
 
-	<Modal bind:isModalOpen>
+	<Modal border={modalData?.color} bind:isModalOpen>
 		<svelte:fragment slot="modal-content">
-			<h1 class="font-bold">{modalData.NAMELSAD}, {modalData.STUSPS}</h1>
+			<h1 class="font-bold text-white">
+				{modalData.NAMELSAD}, {modalData.STUSPS}
+			</h1>
 			<hr class="py-2" />
 			<div class="text-left">
 				<h2>

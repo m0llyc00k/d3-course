@@ -10,9 +10,17 @@
 	import clickOutside from '$lib/actions/clickOutside';
 	import { createFocusTrap } from 'focus-trap';
 	import { disableBodyScroll, clearAllBodyScrollLocks } from 'body-scroll-lock';
+	import { object_without_properties } from 'svelte/internal';
+
 	let trap;
 	let modalEl;
 	export let isModalOpen = false;
+	export let legendStatusData = [];
+	export let counties = [];
+	export let border = 'black';
+
+	console.log(legendStatusData);
+	console.log(counties);
 
 	// close menu before navigating
 	beforeNavigate(() => (isModalOpen = false));
@@ -37,7 +45,7 @@
 		/>
 		<div use:clickOutside on:outclick={() => (isModalOpen = false)}>
 			<article
-				class="min-w-1/2 bg-background border border-primary relative z-50 flex flex-wrap flex-col justify-center items-start max-w-2xl"
+				class="min-w-1/2 bg-background border-4 border-{border} relative z-50 flex flex-wrap flex-col justify-center items-start max-w-2xl"
 				in:scale={{ duration: 300, easing: cubicOut }}
 			>
 				<div class="flex w-full justify-end mb-2">
