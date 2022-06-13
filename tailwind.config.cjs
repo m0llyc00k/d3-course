@@ -3,6 +3,18 @@ const { amber } = require('tailwindcss/colors');
 module.exports = {
 	content: ['./src/**/*.{html,js,svelte,ts}', './src/lib/data/copy.json'],
 	plugins: [require('@tailwindcss/typography'), require('@tailwindcss/forms')],
+	safelist: [
+		'bg-map-blue',
+		'bg-map-yellow',
+		'bg-map-purple',
+		'bg-map-teal',
+		'bg-map-green',
+		'fill-map-blue',
+		'fill-map-yellow',
+		'fill-map-purple',
+		'fill-map-teal',
+		'fill-map-green'
+	],
 	theme: {
 		screens: {
 			sm: '640px',
@@ -48,6 +60,13 @@ module.exports = {
 				secondary: {
 					light: amber['100'],
 					DEFAULT: amber['300']
+				},
+				map: {
+					blue: '#3b528b',
+					yellow: '#fde725',
+					purple: '#440154',
+					teal: '#21908d',
+					green: '#5dc963'
 				}
 			}
 		}

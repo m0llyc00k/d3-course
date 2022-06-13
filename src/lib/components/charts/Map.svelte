@@ -8,10 +8,10 @@
 	//Tasks
 	//connect dropdown to county paths (county shape highlighted when clicked on dropdown)
 	//add color/ vulnerability status to modal to understand details (reinforce legend)
-	//click off dropdown to reset (right now, only works when 'x' is clicked)
+	//click off dropdown to reset (right now, only works when 'x')
 
-	import { geoAlbersUsa, geoPath, scaleOrdinal, ascending } from 'd3';
-	import Tooltip from '$lib/components/interactivity/Tooltip.svelte';
+	import { geoAlbersUsa, geoPath, ascending } from 'd3';
+	import TooltipMap from '$lib/components/interactivity/TooltipMap.svelte';
 	import Modal from '$lib/components/interactivity/Modal.svelte';
 	import Select from 'svelte-select';
 
@@ -20,43 +20,68 @@
 	export const width = 1200,
 		height = 550;
 
+	let containerWidth = 1200;
+
 	const projection = geoAlbersUsa()
-		.translate([width / 2, height / 2])
+		.translate([containerWidth / 2, height / 2])
 		.scale([1150]);
 
 	const path = geoPath(projection);
 
-	$: thisColorScale = scaleOrdinal()
-		.domain([1, 5])
-		.range(['#3b528b', '#fde725', '#440154', '#21908d', '#5dc963']);
-
 	//create legend
-	const legendColors = scaleOrdinal().range([
-		'#3b528b',
-		'#fde725',
-		'#440154',
-		'#21908d',
-		'#5dc963'
-	]);
-
-	const legendLabels = [
-		'Low MAT Rate, High Pill Rate, Moderate Death Rate',
-		'High MAT Rate, Moderate Pill Rate, High Death Rate',
-		'Unknown or Low Risk Status',
-		'Low MAT Rate, High Pill Rate, High Death Rate',
-		'High MAT Rate, High Pill Rate, High Death Rate'
+	const legendStatusData = [
+		{
+			CL: 2,
+			value: 'Insufficient Data',
+			color: 'map-purple',
+			status: 'unknown'
+		},
+		{
+			CL: 5,
+			value: 'High MAT Rate, Moderate Pill Rate, High Death Rate',
+			color: 'map-yellow',
+			status: 'low'
+		},
+		{
+			CL: 4,
+			value: 'High MAT Rate, High Pill Rate, High Death Rate',
+			color: 'map-green',
+			status: 'moderate'
+		},
+		{
+			CL: 1,
+			value: 'Low MAT Rate, High Pill Rate, Moderate Death Rate',
+			color: 'map-blue',
+			status: 'high'
+		},
+		{
+			CL: 3,
+			value: 'Low MAT Rate, High Pill Rate, High Death Rate',
+			color: 'map-teal',
+			status: 'highest'
+		}
 	];
 
-	var legendText = legendLabels.map((d) => d);
-	let tooltip;
+	$: selectCounties = counties
+		.map((county) => {
+			return {
+				name: county.properties.NAMELSAD,
+				state: county.properties.NAME_2,
+				statusCL: county.properties.CL,
+				data: county.properties
+			};
+		})
+		.sort((a, b) => ascending(a.name, b.name))
+		.sort((a, b) => ascending(a.state, b.state));
+
+	let tooltipMap;
 	let tooltipData;
 	let modalData;
 	let isModalOpen;
 
 	const mouseover = (thisCounty) => {
-		tooltip = true;
+		tooltipMap = true;
 		tooltipData = thisCounty;
-		// console.log(tooltipData);
 	};
 
 	const clicked = (thisCounty) => {
@@ -65,33 +90,22 @@
 		// console.log(tooltipData);
 	};
 
-	$: selectCounties = counties
-		.map((county) => {
-			return {
-				name: county.properties.NAMELSAD,
-				state: county.properties.NAME_2,
-				data: county.properties
-			};
-		})
-		.sort((a, b) => ascending(a.name, b.name))
-		.sort((a, b) => ascending(a.state, b.state));
-
 	// let selectCounty = undefined;
 	const getSelectionLabel = (option) => option.name;
 	const getOptionLabel = (option) => option.name;
 	const groupBy = (option) => option.state;
 
-	function handleSelectDropdown(event) {
+	const handleSelectDropdown = (event) => {
 		isModalOpen = true;
 		modalData = event.detail.data;
-	}
+	};
 
-	function handleClearDropdown() {
+	const handleClearDropdown = () => {
 		modalData = undefined;
-	}
+	};
 </script>
 
-<form class="max-w-sm m-auto pt-4 text-left">
+<form class="max-w-sm m-auto p-5 text-left">
 	<Select
 		class="text-left"
 		{getOptionLabel}
@@ -103,44 +117,40 @@
 		on:clear={handleClearDropdown}
 	/>
 </form>
+<div id="legend" class="grid grid-cols-5 gap-x-1 justify-center p-3">
+	{#each legendStatusData as label}
+		<div class="flex flex-col items-center flex-1">
+			<p class="text-xs text-left capitalize">{label.status}</p>
+			<div
+				class="w-full h-[20px] bg-{label.color} border-black border"
+				data-tooltip={label.value}
+			/>
+		</div>
+	{/each}
+</div>
 <section class="text-center m-4">
 	<svg {width} {height} class="mx-auto">
 		<g>
 			{#each counties as county}
 				<path
-					class="focus:fill-cyan-300 hover:fill-cyan-100 stroke-black cursor-pointer stroke-1"
+					class="focus:fill-cyan-300 hover:fill-cyan-100 stroke-black cursor-pointer fill-{legendStatusData.find(
+						(d) => d.CL === county.properties.CL
+					).color}"
 					d={path(county)}
 					on:mouseover={mouseover(county.properties)}
 					on:focus={mouseover(county.properties)}
-					on:mouseout={() => (tooltip = false)}
-					on:blur={() => (tooltip = false)}
+					on:mouseout={() => (tooltipMap = false)}
+					on:blur={() => (tooltipMap = false)}
 					on:click={clicked(county.properties)}
-					fill={thisColorScale(county.properties.CL)}
-				/>
-			{/each}
-		</g>
-
-		<g class="legend">
-			{#each legendText as label, index}
-				<text class="opacity-100 bg-gray-600 text-xs" x={60} y={index * 25 + 440}>{label}</text>
-			{/each}
-		</g>
-		<g>
-			{#each legendText as label, index}
-				<rect
-					class="stroke-black"
-					x={20}
-					y={index * 24 + 427}
-					fill={legendColors(label)}
-					width="30"
-					height="21"
 				/>
 			{/each}
 		</g>
 	</svg>
-	<Tooltip {tooltip}>
+
+	<TooltipMap {tooltipMap}>
 		<p class="my-0">{tooltipData.NAMELSAD}, {tooltipData.STUSPS}</p>
-	</Tooltip>
+	</TooltipMap>
+
 	<Modal bind:isModalOpen>
 		<svelte:fragment slot="modal-content">
 			<h1 class="font-bold">{modalData.NAMELSAD}, {modalData.STUSPS}</h1>
