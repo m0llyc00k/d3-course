@@ -11,22 +11,21 @@
 	//click off dropdown to reset (right now, only works when 'x')
 
 	import { geoAlbersUsa, geoPath, ascending } from 'd3';
+	// import * as d3 from 'd3';
 	import TooltipMap from '$lib/components/interactivity/TooltipMap.svelte';
 	import Modal from '$lib/components/interactivity/Modal.svelte';
 	import Select from 'svelte-select';
+	import { feature } from 'topojson-client';
+	// import { raise } from 'layercake';
+	import topojson from '$lib/data/cartography/counties.topojson.json';
 
-	export let counties = [];
+	const heightWidthProportion = 0.76;
+	const viewboxDims = [600, 500 * heightWidthProportion];
 
-	export const width = 1200,
-		height = 550;
-
-	let containerWidth = 1200;
-
-	const projection = geoAlbersUsa()
-		.translate([containerWidth / 2, height / 2])
-		.scale([1150]);
-
-	const path = geoPath(projection);
+	const geojson = feature(topojson, topojson.objects.collection);
+	const counties = geojson.features;
+	const projectionFn = geoAlbersUsa().fitSize(viewboxDims, geojson);
+	const path = geoPath(projectionFn);
 
 	//create legend
 	const legendStatusData = [
@@ -79,12 +78,12 @@
 	let modalData;
 	let isModalOpen;
 
-	const mouseover = (thisCounty) => {
+	const mouseover = (thisCounty, e) => {
 		tooltipMap = true;
 		tooltipData = thisCounty;
 	};
 
-	const clicked = (thisCounty) => {
+	const clicked = (thisCounty, e) => {
 		isModalOpen = true;
 		modalData = thisCounty;
 		// console.log(tooltipData);
@@ -129,20 +128,25 @@
 	{/each}
 </div>
 <section class="text-center m-4">
-	<svg {width} {height} class="mx-auto">
+	<svg
+		class="w-full h-full mx-auto overflow-visible viz-container"
+		viewbox="0 0 {viewboxDims[0]} {viewboxDims[1]}"
+	>
 		<g>
-			{#each counties as county}
+			{#each geojson.features as feature}
 				<path
-					class="focus:fill-cyan-300 hover:fill-cyan-100 stroke-black cursor-pointer fill-{legendStatusData.find(
-						(d) => d.CL === county.properties.CL
+					class="focus:fill-cyan-300 hover:fill-cyan-100 stroke-black stroke-[0.4px] cursor-pointer fill-{legendStatusData.find(
+						(d) => d.CL === feature.properties.CL
 					).color}"
-					d={path(county)}
-					on:mouseover={mouseover(county.properties)}
-					on:focus={mouseover(county.properties)}
+					d={path(feature)}
+					on:mouseover={() => mouseover(feature.properties)}
+					on:focus={() => mouseover(feature.properties)}
 					on:mouseout={() => (tooltipMap = false)}
 					on:blur={() => (tooltipMap = false)}
-					on:click={clicked(county.properties)}
-				/>
+					on:click={() => clicked(feature.properties)}
+				>
+					<title>{feature.properties.name}</title>
+				</path>
 			{/each}
 		</g>
 	</svg>
