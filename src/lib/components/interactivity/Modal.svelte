@@ -10,7 +10,6 @@
 	import clickOutside from '$lib/actions/clickOutside';
 	import { createFocusTrap } from 'focus-trap';
 	import { disableBodyScroll, clearAllBodyScrollLocks } from 'body-scroll-lock';
-	import { object_without_properties } from 'svelte/internal';
 
 	let trap;
 	let modalEl;

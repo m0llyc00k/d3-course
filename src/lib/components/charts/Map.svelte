@@ -1,22 +1,10 @@
 <script>
-	//References (in addition to svelte and d3 documentation):
-	//https://dev.to/learners/maps-with-d3-and-svelte-8p3
-	//https://svelte.recipes/components/world-map
-	//https://bl.ocks.org/rveciana/9026255839233498dbe979ea69ad3af2
-	//https://svelte.recipes/components/world-map
-
-	//Tasks
-	//connect dropdown to county paths (county shape highlighted when clicked on dropdown)
-	//add color/ vulnerability status to modal to understand details (reinforce legend)
-	//click off dropdown to reset (right now, only works when 'x')
 
 	import { geoAlbersUsa, geoPath, ascending } from 'd3';
-	// import * as d3 from 'd3';
 	import TooltipMap from '$lib/components/interactivity/TooltipMap.svelte';
 	import Modal from '$lib/components/interactivity/Modal.svelte';
 	import Select from 'svelte-select';
 	import { feature } from 'topojson-client';
-	// import { raise } from 'layercake';
 	import topojson from '$lib/data/cartography/counties.topojson.json';
 
 	const heightWidthProportion = 0.76;
@@ -83,7 +71,7 @@
 		tooltipData = thisCounty;
 	};
 
-	const clicked = (thisCounty) => {
+	const handleSelect = (thisCounty) => {
 		isModalOpen = true;
 		modalData = thisCounty;
 		// console.log(tooltipData);
@@ -93,19 +81,18 @@
 	const getSelectionLabel = (option) => option.name;
 	const getOptionLabel = (option) => option.name;
 	const groupBy = (option) => option.state;
-	let CLstatus = (d) => d.CL;
+	const status = () => legendStatusData.find((d) => d.CL === modalData.CL).color
+	// const color = 'purple'
 
-	const handleSelectDropdown = (event) => {
-		isModalOpen = true;
-		modalData = event.detail.data;
-	};
 
-	const handleClearDropdown = () => {
+	const handleClearDropdown = (event) => {
 		modalData = undefined;
+		isModalOpen = false;
 	};
+	
 </script>
+	<form class="max-w-sm m-auto p-5 text-left"> 
 
-<form class="max-w-sm m-auto p-5 text-left">
 	<Select
 		class="text-left"
 		{getOptionLabel}
@@ -113,10 +100,11 @@
 		items={selectCounties}
 		{groupBy}
 		placeholder="Select a County to See Details"
-		on:select={handleSelectDropdown}
+		on:select={(event) => handleSelect({...event.detail.data, color: legendStatusData.find((d) => d.CL === event.detail.data.CL).color})}
 		on:clear={handleClearDropdown}
 	/>
-</form>
+
+	</form>
 <div id="legend" class="grid grid-cols-5 gap-x-1 justify-center p-3">
 	{#each legendStatusData as label}
 		<div class="flex flex-col items-center flex-1">
@@ -143,7 +131,7 @@
 					on:focus={() => mouseover({ ...feature.properties, color })}
 					on:mouseout={() => (tooltipMap = false)}
 					on:blur={() => (tooltipMap = false)}
-					on:click={() => clicked({ ...feature.properties, color })}
+					on:click={() => handleSelect({ ...feature.properties, color })}
 				>
 					<title>{feature.properties.name}</title>
 				</path>
@@ -155,7 +143,7 @@
 		<p class="my-0">{tooltipData.NAMELSAD}, {tooltipData.STUSPS}</p>
 	</TooltipMap>
 
-	<Modal border={modalData?.color} bind:isModalOpen>
+	<Modal border={modalData?.color} bind:isModalOpen {legendStatusData}>
 		<svelte:fragment slot="modal-content">
 			<h1 class="font-bold text-white">
 				{modalData.NAMELSAD}, {modalData.STUSPS}
