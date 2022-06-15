@@ -18,9 +18,6 @@
 	export let counties = [];
 	export let border = 'black';
 
-	console.log(legendStatusData);
-	console.log(counties);
-
 	// close menu before navigating
 	beforeNavigate(() => (isModalOpen = false));
 	$: if (isModalOpen && modalEl) {
