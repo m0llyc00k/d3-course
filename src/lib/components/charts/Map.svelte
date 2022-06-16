@@ -1,11 +1,21 @@
 <script>
-	import { geoAlbersUsa, geoPath, ascending, select } from 'd3';
+	//References (in addition to svelte and d3 documentation):
+	//https://dev.to/learners/maps-with-d3-and-svelte-8p3
+	//https://svelte.recipes/components/world-map
+	//https://bl.ocks.org/rveciana/9026255839233498dbe979ea69ad3af2
+	//https://svelte.recipes/components/world-map
+	//Tasks
+	//connect dropdown to county paths (county shape highlighted when clicked on dropdown)
+	//add color/ vulnerability status to modal to understand details (reinforce legend)
+	//click off dropdown to reset (right now, only works when 'x')
+	import { geoAlbersUsa, geoPath, ascending } from 'd3';
+	// import * as d3 from 'd3';
 	import TooltipMap from '$lib/components/interactivity/TooltipMap.svelte';
 	import Modal from '$lib/components/interactivity/Modal.svelte';
 	import Select from 'svelte-select';
 	import { feature } from 'topojson-client';
+	// import { raise } from 'layercake';
 	import topojson from '$lib/data/cartography/counties.topojson.json';
-import { validate_component } from 'svelte/internal';
 	const heightWidthProportion = 0.76;
 	const viewboxDims = [600, 500 * heightWidthProportion];
 	const geojson = feature(topojson, topojson.objects.collection);
@@ -51,8 +61,7 @@ import { validate_component } from 'svelte/internal';
 				name: county.properties.NAMELSAD,
 				state: county.properties.NAME_2,
 				statusCL: county.properties.CL,
-				data: county.properties,
-				features: county
+				data: county.properties
 			};
 		})
 		.sort((a, b) => ascending(a.state, b.state) || ascending(a.name, b.name));
@@ -60,15 +69,14 @@ import { validate_component } from 'svelte/internal';
 	let tooltipData;
 	let modalData;
 	let isModalOpen;
-	let selected = selectCounties[0]
-	console.log(selected.name)
 	const mouseover = (thisCounty) => {
 		tooltipMap = true;
 		tooltipData = thisCounty;
 	};
-	const handleSelect = (thisCounty) => {
+	const clicked = (thisCounty) => {
 		isModalOpen = true;
 		modalData = thisCounty;
+		// console.log(tooltipData);
 	};
 	// let selectCounty = undefined;
 	$: console.log(selectCounties);
@@ -97,7 +105,6 @@ import { validate_component } from 'svelte/internal';
 		<div class="flex flex-1 flex-col items-center">
 			<p class="text-left text-xs capitalize">{status}</p>
 			<div class="h-[20px] w-full bg-{color} border border-black" data-tooltip={value} />
-
 		</div>
 	{/each}
 </div>
@@ -116,7 +123,7 @@ import { validate_component } from 'svelte/internal';
 					on:focus={() => mouseover({ ...feature.properties, color })}
 					on:mouseout={() => (tooltipMap = false)}
 					on:blur={() => (tooltipMap = false)}
-					on:click={() => handleSelect({ ...feature.properties, color })}
+					on:click={() => clicked({ ...feature.properties, color })}
 				>
 					<title>{feature.properties.name}</title>
 				</path>
@@ -128,7 +135,7 @@ import { validate_component } from 'svelte/internal';
 		<p class="my-0">{tooltipData.NAMELSAD}, {tooltipData.STUSPS}</p>
 	</TooltipMap>
 
-	<Modal border={modalData?.color} bind:isModalOpen {legend}>
+	<Modal border={modalData?.color} bind:isModalOpen>
 		<svelte:fragment slot="modal-content">
 			<h1 class="font-bold text-white">
 				{modalData.NAMELSAD}, {modalData.STUSPS}
@@ -152,9 +159,3 @@ import { validate_component } from 'svelte/internal';
 		</svelte:fragment>
 	</Modal>
 </section>
-
-<style>
-	.selected {
-		fill: lightcyan;
-	}
-</style>
