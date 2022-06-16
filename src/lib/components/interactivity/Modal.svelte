@@ -10,9 +10,13 @@
 	import clickOutside from '$lib/actions/clickOutside';
 	import { createFocusTrap } from 'focus-trap';
 	import { disableBodyScroll, clearAllBodyScrollLocks } from 'body-scroll-lock';
+
 	let trap;
 	let modalEl;
 	export let isModalOpen = false;
+	export let legendStatusData = [];
+	export let counties = [];
+	export let border = 'black';
 
 	// close menu before navigating
 	beforeNavigate(() => (isModalOpen = false));
@@ -28,7 +32,7 @@
 
 {#if isModalOpen}
 	<div
-		class="fixed left-0 right-0 top-0 bottom-0 flex justify-center items-center z-50 backdrop-blur-sm"
+		class="fixed left-0 right-0 top-0 bottom-0 flex justify-center items-center z-50 backdrop-blur-sm bg-white/50"
 		bind:this={modalEl}
 	>
 		<div
@@ -37,7 +41,7 @@
 		/>
 		<div use:clickOutside on:outclick={() => (isModalOpen = false)}>
 			<article
-				class="min-w-1/2 bg-background border border-primary relative z-50 flex flex-wrap flex-col justify-center items-start max-w-2xl"
+				class="min-w-1/2 bg-background border-8 border-{border} relative z-50 flex flex-wrap flex-col justify-center items-start max-w-2xl"
 				in:scale={{ duration: 300, easing: cubicOut }}
 			>
 				<div class="flex w-full justify-end mb-2">

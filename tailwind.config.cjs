@@ -13,7 +13,12 @@ module.exports = {
 		'fill-map-yellow',
 		'fill-map-purple',
 		'fill-map-teal',
-		'fill-map-green'
+		'fill-map-green',
+		'border-map-blue',
+		'border-map-yellow',
+		'border-map-purple',
+		'border-map-teal',
+		'border-map-green',
 	],
 	theme: {
 		screens: {

@@ -1,23 +1,12 @@
 <script>
-	//References (in addition to svelte and d3 documentation):
-	//https://dev.to/learners/maps-with-d3-and-svelte-8p3
-	//https://svelte.recipes/components/world-map
-	//https://bl.ocks.org/rveciana/9026255839233498dbe979ea69ad3af2
-	//https://svelte.recipes/components/world-map
 
-	//Tasks
-	//connect dropdown to county paths (county shape highlighted when clicked on dropdown)
-	//add color/ vulnerability status to modal to understand details (reinforce legend)
-	//click off dropdown to reset (right now, only works when 'x')
-
-	import { geoAlbersUsa, geoPath, ascending } from 'd3';
-	// import * as d3 from 'd3';
+	import { geoAlbersUsa, geoPath, ascending, select } from 'd3';
 	import TooltipMap from '$lib/components/interactivity/TooltipMap.svelte';
 	import Modal from '$lib/components/interactivity/Modal.svelte';
 	import Select from 'svelte-select';
 	import { feature } from 'topojson-client';
-	// import { raise } from 'layercake';
 	import topojson from '$lib/data/cartography/counties.topojson.json';
+import { validate_component } from 'svelte/internal';
 
 	const heightWidthProportion = 0.76;
 	const viewboxDims = [600, 500 * heightWidthProportion];
@@ -28,7 +17,7 @@
 	const path = geoPath(projectionFn);
 
 	//create legend
-	const legendStatusData = [
+	let legendStatusData = [
 		{
 			CL: 2,
 			value: 'Insufficient Data',
@@ -61,13 +50,14 @@
 		}
 	];
 
-	$: selectCounties = counties
+	const selectCounties = counties
 		.map((county) => {
 			return {
 				name: county.properties.NAMELSAD,
 				state: county.properties.NAME_2,
 				statusCL: county.properties.CL,
-				data: county.properties
+				data: county.properties,
+				features: county
 			};
 		})
 		.sort((a, b) => ascending(a.name, b.name))
@@ -77,16 +67,19 @@
 	let tooltipData;
 	let modalData;
 	let isModalOpen;
+	let selected = selectCounties[0]
 
-	const mouseover = (thisCounty, e) => {
+	console.log(selected.name)
+
+
+	const mouseover = (thisCounty) => {
 		tooltipMap = true;
 		tooltipData = thisCounty;
 	};
 
-	const clicked = (thisCounty, e) => {
+	const handleSelect = (thisCounty) => {
 		isModalOpen = true;
 		modalData = thisCounty;
-		// console.log(tooltipData);
 	};
 
 	// let selectCounty = undefined;
@@ -94,28 +87,31 @@
 	const getOptionLabel = (option) => option.name;
 	const groupBy = (option) => option.state;
 
-	const handleSelectDropdown = (event) => {
-		isModalOpen = true;
-		modalData = event.detail.data;
+
+	const handleClearDropdown = (event) => {
+		modalData = undefined;
+		isModalOpen = false;
 	};
 
-	const handleClearDropdown = () => {
-		modalData = undefined;
-	};
+
 </script>
 
-<form class="max-w-sm m-auto p-5 text-left">
+	<form class="max-w-sm m-auto p-5 text-left"> 
+
 	<Select
 		class="text-left"
+		bind:value={selected}
 		{getOptionLabel}
 		{getSelectionLabel}
 		items={selectCounties}
 		{groupBy}
 		placeholder="Select a County to See Details"
-		on:select={handleSelectDropdown}
+		on:select={(event) => handleSelect({...event.detail.data, color: legendStatusData.find((d) => d.CL === event.detail.data.CL).color, fill: 'lightcyan'})}
 		on:clear={handleClearDropdown}
 	/>
-</form>
+
+	</form>
+
 <div id="legend" class="grid grid-cols-5 gap-x-1 justify-center p-3">
 	{#each legendStatusData as label}
 		<div class="flex flex-col items-center flex-1">
@@ -133,19 +129,19 @@
 		viewbox="0 0 {viewboxDims[0]} {viewboxDims[1]}"
 	>
 		<g>
-			{#each geojson.features as feature}
+			{#each selectCounties as county}
+				{@const color = legendStatusData.find((d) => d.CL === county.features.properties.CL).color}
 				<path
-					class="focus:fill-cyan-300 hover:fill-cyan-100 stroke-black stroke-[0.4px] cursor-pointer fill-{legendStatusData.find(
-						(d) => d.CL === feature.properties.CL
-					).color}"
-					d={path(feature)}
-					on:mouseover={() => mouseover(feature.properties)}
-					on:focus={() => mouseover(feature.properties)}
+					class="{county.name === selected.name ? 'selected' : ''} focus:fill-cyan-300 hover:fill-cyan-100 stroke-black stroke-[0.4px] cursor-pointer fill-{color}"
+					d={path(county.features)}
+					{selectCounties}
+					on:mouseover={() => mouseover({ ...county.features.properties, color })}
+					on:focus={() => mouseover({ ...county.features.properties, color })}
 					on:mouseout={() => (tooltipMap = false)}
 					on:blur={() => (tooltipMap = false)}
-					on:click={() => clicked(feature.properties)}
+					on:click={() => handleSelect({ ...county.features.properties, color })}
 				>
-					<title>{feature.properties.name}</title>
+					<title>{county.features.properties.name}</title>
 				</path>
 			{/each}
 		</g>
@@ -155,9 +151,11 @@
 		<p class="my-0">{tooltipData.NAMELSAD}, {tooltipData.STUSPS}</p>
 	</TooltipMap>
 
-	<Modal bind:isModalOpen>
+	<Modal border={modalData?.color} bind:isModalOpen {legendStatusData}>
 		<svelte:fragment slot="modal-content">
-			<h1 class="font-bold">{modalData.NAMELSAD}, {modalData.STUSPS}</h1>
+			<h1 class="font-bold text-white">
+				{modalData.NAMELSAD}, {modalData.STUSPS}
+			</h1>
 			<hr class="py-2" />
 			<div class="text-left">
 				<h2>
@@ -177,3 +175,9 @@
 		</svelte:fragment>
 	</Modal>
 </section>
+
+<style>
+	.selected {
+		fill: lightcyan;
+	}
+</style>
