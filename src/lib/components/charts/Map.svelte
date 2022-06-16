@@ -1,5 +1,4 @@
 <script>
-
 	import { geoAlbersUsa, geoPath, ascending, select } from 'd3';
 	import TooltipMap from '$lib/components/interactivity/TooltipMap.svelte';
 	import Modal from '$lib/components/interactivity/Modal.svelte';
@@ -7,15 +6,12 @@
 	import { feature } from 'topojson-client';
 	import topojson from '$lib/data/cartography/counties.topojson.json';
 import { validate_component } from 'svelte/internal';
-
 	const heightWidthProportion = 0.76;
 	const viewboxDims = [600, 500 * heightWidthProportion];
-
 	const geojson = feature(topojson, topojson.objects.collection);
 	const counties = geojson.features;
 	const projectionFn = geoAlbersUsa().fitSize(viewboxDims, geojson);
 	const path = geoPath(projectionFn);
-
 	//create legend
 	const legend = {
 		1: {
@@ -49,7 +45,6 @@ import { validate_component } from 'svelte/internal';
 			order: 5
 		}
 	};
-
 	const selectCounties = counties
 		.map((county) => {
 			return {
@@ -61,28 +56,21 @@ import { validate_component } from 'svelte/internal';
 			};
 		})
 		.sort((a, b) => ascending(a.state, b.state) || ascending(a.name, b.name));
-
 	let tooltipMap;
 	let tooltipData;
 	let modalData;
 	let isModalOpen;
 	let selected = selectCounties[0]
-
 	console.log(selected.name)
-
-
 	const mouseover = (thisCounty) => {
 		tooltipMap = true;
 		tooltipData = thisCounty;
 	};
-
 	const handleSelect = (thisCounty) => {
 		isModalOpen = true;
 		modalData = thisCounty;
 	};
-
 	// let selectCounty = undefined;
-
 	$: console.log(selectCounties);
 </script>
 
@@ -128,9 +116,9 @@ import { validate_component } from 'svelte/internal';
 					on:focus={() => mouseover({ ...feature.properties, color })}
 					on:mouseout={() => (tooltipMap = false)}
 					on:blur={() => (tooltipMap = false)}
-					on:click={() => handleSelect({ ...county.features.properties, color })}
+					on:click={() => handleSelect({ ...feature.properties, color })}
 				>
-					<title>{county.features.properties.name}</title>
+					<title>{feature.properties.name}</title>
 				</path>
 			{/each}
 		</g>
@@ -140,7 +128,7 @@ import { validate_component } from 'svelte/internal';
 		<p class="my-0">{tooltipData.NAMELSAD}, {tooltipData.STUSPS}</p>
 	</TooltipMap>
 
-	<Modal border={modalData?.color} bind:isModalOpen {legendStatusData}>
+	<Modal border={modalData?.color} bind:isModalOpen {legend}>
 		<svelte:fragment slot="modal-content">
 			<h1 class="font-bold text-white">
 				{modalData.NAMELSAD}, {modalData.STUSPS}
