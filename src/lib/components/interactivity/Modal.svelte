@@ -10,7 +10,6 @@
 	import clickOutside from '$lib/actions/clickOutside';
 	import { createFocusTrap } from 'focus-trap';
 	import { disableBodyScroll, clearAllBodyScrollLocks } from 'body-scroll-lock';
-	import { object_without_properties } from 'svelte/internal';
 
 	let trap;
 	let modalEl;
@@ -18,9 +17,6 @@
 	export let legendStatusData = [];
 	export let counties = [];
 	export let border = 'black';
-
-	console.log(legendStatusData);
-	console.log(counties);
 
 	// close menu before navigating
 	beforeNavigate(() => (isModalOpen = false));
