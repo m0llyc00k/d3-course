@@ -17,38 +17,38 @@ import { validate_component } from 'svelte/internal';
 	const path = geoPath(projectionFn);
 
 	//create legend
-	let legendStatusData = [
-		{
-			CL: 2,
-			value: 'Insufficient Data',
-			color: 'map-purple',
-			status: 'unknown'
-		},
-		{
-			CL: 5,
-			value: 'High MAT Rate, Moderate Pill Rate, High Death Rate',
-			color: 'map-yellow',
-			status: 'low'
-		},
-		{
-			CL: 4,
-			value: 'High MAT Rate, High Pill Rate, High Death Rate',
-			color: 'map-green',
-			status: 'moderate'
-		},
-		{
-			CL: 1,
+	const legend = {
+		1: {
 			value: 'Low MAT Rate, High Pill Rate, Moderate Death Rate',
 			color: 'map-blue',
-			status: 'high'
+			status: 'high',
+			order: 3
 		},
-		{
-			CL: 3,
+		3: {
 			value: 'Low MAT Rate, High Pill Rate, High Death Rate',
 			color: 'map-teal',
-			status: 'highest'
+			status: 'highest',
+			order: 4
+		},
+		4: {
+			value: 'High MAT Rate, High Pill Rate, High Death Rate',
+			color: 'map-green',
+			status: 'moderate',
+			order: 2
+		},
+		5: {
+			value: 'High MAT Rate, Moderate Pill Rate, High Death Rate',
+			color: 'map-yellow',
+			status: 'low',
+			order: 1
+		},
+		2: {
+			value: 'Insufficient Data',
+			color: 'map-purple',
+			status: 'unknown',
+			order: 5
 		}
-	];
+	};
 
 	const selectCounties = counties
 		.map((county) => {
@@ -60,8 +60,7 @@ import { validate_component } from 'svelte/internal';
 				features: county
 			};
 		})
-		.sort((a, b) => ascending(a.name, b.name))
-		.sort((a, b) => ascending(a.state, b.state));
+		.sort((a, b) => ascending(a.state, b.state) || ascending(a.name, b.name));
 
 	let tooltipMap;
 	let tooltipData;
@@ -83,60 +82,50 @@ import { validate_component } from 'svelte/internal';
 	};
 
 	// let selectCounty = undefined;
-	const getSelectionLabel = (option) => option.name;
-	const getOptionLabel = (option) => option.name;
-	const groupBy = (option) => option.state;
 
-
-	const handleClearDropdown = (event) => {
-		modalData = undefined;
-		isModalOpen = false;
-	};
-
-
+	$: console.log(selectCounties);
 </script>
 
-	<form class="max-w-sm m-auto p-5 text-left"> 
-
+<form class="m-auto max-w-sm p-5 text-left">
 	<Select
-		class="text-left"
-		bind:value={selected}
-		{getOptionLabel}
-		{getSelectionLabel}
+		containerClasses="text-left"
+		optionIdentifier="name"
+		labelIdentifier="name"
 		items={selectCounties}
-		{groupBy}
+		groupBy={(opt) => opt.state}
 		placeholder="Select a County to See Details"
-		on:select={(event) => handleSelect({...event.detail.data, color: legendStatusData.find((d) => d.CL === event.detail.data.CL).color, fill: 'lightcyan'})}
-		on:clear={handleClearDropdown}
+		on:select={(event) => {
+			isModalOpen = true;
+			console.log(event.detail.data);
+			modalData = { ...event.detail.data, color: legend[event.detail.data.CL].color };
+		}}
+		on:clear={() => {
+			modalData = undefined;
+		}}
 	/>
+</form>
+<div id="legend" class="grid grid-cols-5 justify-center gap-x-1 p-3">
+	{#each Object.entries(legend).sort( (a, b) => ascending(a[1].order, b[1].order) ) as [label, { value, status, color }]}
+		<div class="flex flex-1 flex-col items-center">
+			<p class="text-left text-xs capitalize">{status}</p>
+			<div class="h-[20px] w-full bg-{color} border border-black" data-tooltip={value} />
 
-	</form>
-
-<div id="legend" class="grid grid-cols-5 gap-x-1 justify-center p-3">
-	{#each legendStatusData as label}
-		<div class="flex flex-col items-center flex-1">
-			<p class="text-xs text-left capitalize">{label.status}</p>
-			<div
-				class="w-full h-[20px] bg-{label.color} border-black border"
-				data-tooltip={label.value}
-			/>
 		</div>
 	{/each}
 </div>
-<section class="text-center m-4">
+<section class="m-4 text-center">
 	<svg
-		class="w-full h-full mx-auto overflow-visible viz-container"
+		class="viz-container mx-auto h-full w-full overflow-visible"
 		viewbox="0 0 {viewboxDims[0]} {viewboxDims[1]}"
 	>
 		<g>
-			{#each selectCounties as county}
-				{@const color = legendStatusData.find((d) => d.CL === county.features.properties.CL).color}
+			{#each geojson.features as feature}
+				{@const color = legend[feature.properties.CL].color}
 				<path
-					class="{county.name === selected.name ? 'selected' : ''} focus:fill-cyan-300 hover:fill-cyan-100 stroke-black stroke-[0.4px] cursor-pointer fill-{color}"
-					d={path(county.features)}
-					{selectCounties}
-					on:mouseover={() => mouseover({ ...county.features.properties, color })}
-					on:focus={() => mouseover({ ...county.features.properties, color })}
+					class="cursor-pointer stroke-black stroke-[0.4px] hover:fill-cyan-100 focus:fill-cyan-300 fill-{color}"
+					d={path(feature)}
+					on:mouseover={() => mouseover({ ...feature.properties, color })}
+					on:focus={() => mouseover({ ...feature.properties, color })}
 					on:mouseout={() => (tooltipMap = false)}
 					on:blur={() => (tooltipMap = false)}
 					on:click={() => handleSelect({ ...county.features.properties, color })}
