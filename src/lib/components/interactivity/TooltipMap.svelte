@@ -8,21 +8,20 @@
 	export let parentContainer = false; // pass a node if you want to bind tooltip to the node's dimensions
 
 	let left = 0;
+
 	let pageWidth = 300;
 	let tipWidth = 0; // width of the tooltip
 	let cursor = { x: 0, y: 0 }; // cursor pos
 
 	const mousemove = (e) => {
-		// ignore if no tooltip instance is active
-		if (!tooltipMap) return;
 		// find where the cursor is
-		cursor = { x: e.pageX, y: e.pageY };
+		cursor = { x: e.clientX, y: e.clientY };
 	};
 
 	// fixed positioning calculation
 	$: reflectionX = parentContainer
 		? parentContainer.offsetLeft + parentContainer.offsetWidth / 2
-		: pageWidth;
+		: pageWidth / 2;
 	$: left = cursor.x < reflectionX ? cursor.x + margin : cursor.x - margin - tipWidth;
 	$: top = cursor.y + margin;
 </script>
@@ -30,7 +29,7 @@
 <svelte:window on:mousemove={mousemove} bind:innerWidth={pageWidth} />
 {#if tooltipMap}
 	<div
-		class="bg-white text-primary fixed border border-primary rounded-sm shadow-md text-left px-2 py-1 z-40 pointer-events-none text-base font-regular max-w-[200px] w-auto"
+		class="font-regular pointer-events-none fixed z-40 w-auto max-w-[200px] rounded-sm border border-primary bg-white px-2 py-1 text-left text-base text-primary shadow-md"
 		style="left:{left}px;top:{top}px;"
 		bind:offsetWidth={tipWidth}
 	>

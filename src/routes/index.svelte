@@ -13,10 +13,10 @@
 		'https://raw.githubusercontent.com/m0llyc00k/Summer2022/main/county-state-analysis.json';
 </script>
 
-<article class="prose-headings:text-primary pt-4 content-well text-center">
+<article class="content-well pt-4 text-center prose-headings:text-primary">
 	<header class="mb-0">
-		<h1 class="sm:text-4xl font-bold mx-auto">{title}</h1>
-		<h2 class="sm:text-md mx-auto pt-2 pb-0 max-w-3xl">{subtitle}</h2>
+		<h1 class="text-4 mx-auto font-bold sm:text-3xl">{title}</h1>
+		<h2 class="sm:text-md mx-auto max-w-3xl pt-2 pb-0">{subtitle}</h2>
 	</header>
 	<Map />
 </article>

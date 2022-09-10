@@ -4,17 +4,12 @@
 	//https://svelte.recipes/components/world-map
 	//https://bl.ocks.org/rveciana/9026255839233498dbe979ea69ad3af2
 	//https://svelte.recipes/components/world-map
-	//Tasks
-	//connect dropdown to county paths (county shape highlighted when clicked on dropdown)
-	//add color/ vulnerability status to modal to understand details (reinforce legend)
-	//click off dropdown to reset (right now, only works when 'x')
+
 	import { geoAlbersUsa, geoPath, ascending } from 'd3';
-	// import * as d3 from 'd3';
 	import TooltipMap from '$lib/components/interactivity/TooltipMap.svelte';
 	import Modal from '$lib/components/interactivity/Modal.svelte';
 	import Select from 'svelte-select';
 	import { feature } from 'topojson-client';
-	// import { raise } from 'layercake';
 	import topojson from '$lib/data/cartography/counties.topojson.json';
 	const heightWidthProportion = 0.76;
 	const viewboxDims = [600, 500 * heightWidthProportion];
@@ -22,6 +17,7 @@
 	const counties = geojson.features;
 	const projectionFn = geoAlbersUsa().fitSize(viewboxDims, geojson);
 	const path = geoPath(projectionFn);
+
 	//create legend
 	const legend = {
 		1: {
@@ -80,6 +76,8 @@
 	};
 	// let selectCounty = undefined;
 	$: console.log(selectCounties);
+
+	console.log('this is still working');
 </script>
 
 <form class="m-auto max-w-sm p-5 text-left">
@@ -100,17 +98,17 @@
 		}}
 	/>
 </form>
-<div id="legend" class="grid grid-cols-5 justify-center gap-x-1 p-3">
+<div id="legend" class="m-auto grid w-9/12 grid-cols-5 justify-center gap-x-1 p-3">
 	{#each Object.entries(legend).sort( (a, b) => ascending(a[1].order, b[1].order) ) as [label, { value, status, color }]}
 		<div class="flex flex-1 flex-col items-center">
 			<p class="text-left text-xs capitalize">{status}</p>
-			<div class="h-[20px] w-full bg-{color} border border-black" data-tooltip={value} />
+			<div class="h-[15px] w-full bg-{color} border border-black" data-tooltip={value} />
 		</div>
 	{/each}
 </div>
 <section class="m-4 text-center">
 	<svg
-		class="viz-container mx-auto h-full w-full overflow-visible"
+		class="viz-container mx-auto h-full w-10/12 overflow-visible pb-10"
 		viewbox="0 0 {viewboxDims[0]} {viewboxDims[1]}"
 	>
 		<g>
